@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+group = 'it.unicam.cs.mpgc.rpg123743'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = '21'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.danilopianini:gson-extras:1.2.0'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+application {
+    mainClass = 'it.unicam.cs.mpgc.rpg123743.ui.javafx.JavaFXApp'
+}
+
+test {
+    useJUnitPlatform()
+}
