@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  * deserializzare correttamente le sottoclassi polimorfiche di Item
  * (Weapon, Consumable).
  */
-public class JsonGameRepository implements IGameRepository {
+public class JsonGameRepository implements GameRepository {
 
     private static final Logger LOGGER = Logger.getLogger(JsonGameRepository.class.getName());
     private static final String FILE_EXTENSION = ".json";

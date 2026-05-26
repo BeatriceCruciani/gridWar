@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gridWar.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gridWar.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gridWar.test.iml" filepath="$PROJECT_DIR$/.idea/modules/gridWar.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gridwar.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gridwar.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gridwar.test.iml" filepath="$PROJECT_DIR$/.idea/modules/gridwar.test.iml" />
     </modules>
   </component>
 </project>

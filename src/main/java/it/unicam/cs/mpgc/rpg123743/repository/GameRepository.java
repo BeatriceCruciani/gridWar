@@ -10,7 +10,7 @@ import java.util.Optional;
  * Le implementazioni possono utilizzare diversi backend di storage (JSON, database, cloud, ecc.)
  * senza influenzare il resto dell'applicazione.
  */
-public interface IGameRepository {
+public interface GameRepository {
 
     /**
      * Persiste lo stato di gioco specificato.
