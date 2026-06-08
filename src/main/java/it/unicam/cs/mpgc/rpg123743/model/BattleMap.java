@@ -129,8 +129,7 @@ public class BattleMap {
         for (int[] delta : deltas) {
             int newRow = position.getRow() + delta[0];
             int newCol = position.getCol() + delta[1];
-            Position neighbour = new Position(newRow, newCol);
-            if (isInBounds(neighbour)) {
+            if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
                 adjacent.add(grid[newRow][newCol]);
             }
         }

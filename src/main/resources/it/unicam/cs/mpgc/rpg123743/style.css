@@ -1,0 +1,140 @@
+/* ===== Global ===== */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: #1a1a2e;
+}
+
+/* ===== Main Menu ===== */
+.main-menu {
+    -fx-background-color: #1a1a2e;
+}
+
+.title {
+    -fx-font-size: 56px;
+    -fx-font-weight: bold;
+    -fx-fill: #e94560;
+}
+
+.subtitle {
+    -fx-font-size: 18px;
+    -fx-fill: #a0a0b0;
+}
+
+.menu-button {
+    -fx-background-color: #e94560;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 12 30 12 30;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.menu-button:hover {
+    -fx-background-color: #c73652;
+}
+
+/* ===== Battle Screen ===== */
+.battle-screen {
+    -fx-background-color: #16213e;
+}
+
+.top-bar {
+    -fx-background-color: #0f3460;
+    -fx-padding: 10;
+}
+
+.turn-label {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.action-button {
+    -fx-background-color: #e94560;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 6 16 6 16;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: #c73652;
+}
+
+/* ===== Map Grid ===== */
+.map-grid {
+    -fx-background-color: #16213e;
+    -fx-hgap: 2;
+    -fx-vgap: 2;
+}
+
+.cell {
+    -fx-border-color: #2a2a4a;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+}
+
+.terrain-plain    { -fx-background-color: #2d5a27; }
+.terrain-forest   { -fx-background-color: #1a3d18; }
+.terrain-mountain { -fx-background-color: #5a5a6e; }
+.terrain-fort     { -fx-background-color: #8b6914; }
+.terrain-wall     { -fx-background-color: #1a1a1a; -fx-cursor: default; }
+
+.cell-selected    { -fx-border-color: #ffdd57; -fx-border-width: 3; }
+.cell-reachable   { -fx-background-color: #1a6bb5; }
+.cell-attackable  { -fx-background-color: #8b1a1a; }
+
+/* ===== Unit labels ===== */
+.unit-player {
+    -fx-font-size: 22px;
+    -fx-text-fill: #57d9ff;
+}
+
+.unit-enemy {
+    -fx-font-size: 22px;
+    -fx-text-fill: #ff6b6b;
+}
+
+/* ===== Side Panel ===== */
+.side-panel {
+    -fx-background-color: #0f3460;
+    -fx-padding: 12;
+}
+
+.panel-header {
+    -fx-text-fill: #ffdd57;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.side-panel .label {
+    -fx-text-fill: #c0c0d0;
+    -fx-font-size: 13px;
+}
+
+/* ===== Combat Log ===== */
+.combat-log {
+    -fx-control-inner-background: #0a0a1a;
+    -fx-text-fill: #a0ffa0;
+    -fx-font-family: "Courier New", monospace;
+    -fx-font-size: 12px;
+}
+
+/* ===== Game Over ===== */
+.game-over-screen {
+    -fx-background-color: #1a1a2e;
+}
+
+.victory-text {
+    -fx-font-size: 64px;
+    -fx-font-weight: bold;
+    -fx-fill: #57d9ff;
+}
+
+.defeat-text {
+    -fx-font-size: 64px;
+    -fx-font-weight: bold;
+    -fx-fill: #e94560;
+}
