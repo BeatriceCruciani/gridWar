@@ -156,8 +156,11 @@ public class BattleController {
         pane.getStyleClass().add("cell");
         pane.getStyleClass().add("terrain-" + cell.getTerrainType().name().toLowerCase());
 
-        if (reachableCells.contains(pos))  pane.getStyleClass().add("cell-reachable");
-        if (attackableCells.contains(pos)) pane.getStyleClass().add("cell-attackable");
+        if (reachableCells.contains(pos)) {
+            pane.getStyleClass().add("cell-reachable");
+        } else if (attackableCells.contains(pos)) {
+            pane.getStyleClass().add("cell-attackable");
+        }
         if (selectedUnit != null && selectedUnit.getPosition().equals(pos))
             pane.getStyleClass().add("cell-selected");
 
@@ -180,6 +183,19 @@ public class BattleController {
 
         BattleMap map = state.getBattleMap();
         Cell cell     = map.getCell(pos);
+
+        // Caso 0: mostra le stat di qualsiasi unità cliccata
+        if (cell.isOccupied()) {
+            Unit clicked = cell.getOccupant();
+            if (clicked.getFaction() == Faction.ENEMY) {
+                if (selectedUnit != null && attackableCells.contains(pos)) {
+                } else {
+                    showUnitInfo(clicked);
+                    refreshGrid();
+                    return;
+                }
+            }
+        }
 
         // Caso 1: cella raggiungibile vuota → sposta l'unità selezionata
         if (selectedUnit != null && reachableCells.contains(pos) && !cell.isOccupied()) {
@@ -216,7 +232,7 @@ public class BattleController {
                     ? new HashSet<>()
                     : movementService.getReachableCells(selectedUnit, map);
             attackableCells = movementService.getAttackRange(selectedUnit, map);
-            refreshSidePanel();
+            showUnitInfo(selectedUnit);
             refreshGrid();
             return;
         }
@@ -224,6 +240,30 @@ public class BattleController {
         // Caso 4: click altrove → deseleziona
         clearSelection();
         refreshGrid();
+    }
+
+    private void showUnitInfo(Unit unit) {
+        unitInfoPanel.getChildren().clear();
+        Label header = new Label(unit.getName());
+        header.getStyleClass().add("panel-header");
+
+        String faction = unit.getFaction() == Faction.PLAYER ? "[Player]" : "[Enemy]";
+        Stats s = unit.getStats();
+
+        unitInfoPanel.getChildren().addAll(
+                header,
+                new Label(faction),
+                new Label("Class:  " + unit.getUnitClass()),
+                new Label("Level:  " + unit.getLevel()),
+                new Label("HP:     " + s.getCurrentHp() + "/" + s.getMaxHp()),
+                new Label("ATK:    " + s.getAttack()),
+                new Label("DEF:    " + s.getDefence()),
+                new Label("RES:    " + s.getResistance()),
+                new Label("SPD:    " + s.getSpeed()),
+                new Label("MOV:    " + s.getMovement()),
+                new Label("Weapon: " + (unit.getEquippedWeapon() == null
+                        ? "None" : unit.getEquippedWeapon().getName()))
+        );
     }
 
     private void onEndTurn() {
@@ -261,25 +301,13 @@ public class BattleController {
     }
 
     private void refreshSidePanel() {
-        unitInfoPanel.getChildren().clear();
-        Label header = new Label(selectedUnit == null ? "Select a unit" : selectedUnit.getName());
-        header.getStyleClass().add("panel-header");
-        unitInfoPanel.getChildren().add(header);
-
         if (selectedUnit != null) {
-            Stats s = selectedUnit.getStats();
-            unitInfoPanel.getChildren().addAll(
-                    new Label("Class:  " + selectedUnit.getUnitClass()),
-                    new Label("Level: " + selectedUnit.getLevel()),
-                    new Label("HP:      " + s.getCurrentHp() + "/" + s.getMaxHp()),
-                    new Label("ATK:     " + s.getAttack()),
-                    new Label("DEF:     " + s.getDefence()),
-                    new Label("RES:     " + s.getResistance()),
-                    new Label("SPD:     " + s.getSpeed()),
-                    new Label("MOV:     " + s.getMovement()),
-                    new Label("Weapon:    " + (selectedUnit.getEquippedWeapon() == null
-                            ? "None" : selectedUnit.getEquippedWeapon().getName()))
-            );
+            showUnitInfo(selectedUnit);
+        } else {
+            unitInfoPanel.getChildren().clear();
+            Label header = new Label("Select a unit");
+            header.getStyleClass().add("panel-header");
+            unitInfoPanel.getChildren().add(header);
         }
     }
 

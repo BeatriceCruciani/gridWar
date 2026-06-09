@@ -43,7 +43,6 @@ public class MovementService {
 
                 if (!neighbour.isPassable()) continue;
 
-                // Le celle occupate da nemici bloccano il movimento
                 if (neighbour.isOccupied() && neighbour.getOccupant().isEnemy(unit)) continue;
 
                 int newCost = currentCost + terrain.getMovementCost();
@@ -53,7 +52,6 @@ public class MovementService {
                     costSoFar.put(neighbourPos, newCost);
                     queue.add(neighbourPos);
 
-                    // Aggiunge come destinazione solo se non occupata da un alleato
                     if (!neighbour.isOccupied()) {
                         reachable.add(neighbourPos);
                     }
@@ -76,14 +74,18 @@ public class MovementService {
         Set<Position> attackRange = new HashSet<>();
         if (unit.getEquippedWeapon() == null) return attackRange;
 
-        int range        = unit.getEquippedWeapon().getRange();
-        Position origin  = unit.getPosition();
+        int range       = unit.getEquippedWeapon().getRange();
+        Position origin = unit.getPosition();
 
         for (int r = 0; r < map.getRows(); r++) {
             for (int c = 0; c < map.getCols(); c++) {
                 Position pos = new Position(r, c);
                 if (origin.distanceTo(pos) <= range && !pos.equals(origin)) {
-                    attackRange.add(pos);
+                    Cell cell = map.getCell(pos);
+                    if (cell.getTerrainType() != TerrainType.WALL
+                            && (!cell.isOccupied() || cell.getOccupant().isEnemy(unit))) {
+                        attackRange.add(pos);
+                    }
                 }
             }
         }
