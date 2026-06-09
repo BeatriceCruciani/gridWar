@@ -51,15 +51,13 @@ public class MainMenuController {
         Text subtitle = new Text("A Tactical RPG");
         subtitle.getStyleClass().add("subtitle");
 
-        Button newGameBtn  = createButton("Nuova Partita", this::onNewGame);
-        Button loadGameBtn = createButton("Carica Partita", this::onLoadGame);
-        Button quitBtn     = createButton("Esci", this::onQuit);
+        Button newGameBtn  = createButton("New Game", this::onNewGame);
+        Button loadGameBtn = createButton("Load Game", this::onLoadGame);
+        Button quitBtn     = createButton("Quit", this::onQuit);
 
         root.getChildren().addAll(title, subtitle, newGameBtn, loadGameBtn, quitBtn);
         return root;
     }
-
-    // --- Gestori degli eventi ---
 
     private void onNewGame() {
         GameState state = GameStateFactory.createDefaultGame();
@@ -69,20 +67,20 @@ public class MainMenuController {
     private void onLoadGame() {
         List<String> saves = saveService.listSaves();
         if (saves.isEmpty()) {
-            showAlert("Nessun salvataggio", "Non ci sono partite salvate da caricare.");
+            showAlert("No Saves", "No saved games to load");
             return;
         }
 
         ChoiceDialog<String> dialog = new ChoiceDialog<>(saves.get(0), saves);
-        dialog.setTitle("Carica Partita");
-        dialog.setHeaderText("Seleziona un salvataggio");
-        dialog.setContentText("Salvataggio:");
+        dialog.setTitle("Load Game");
+        dialog.setHeaderText("Select a save");
+        dialog.setContentText("Save:");
 
         Optional<String> choice = dialog.showAndWait();
         choice.ifPresent(saveName ->
                 saveService.load(saveName).ifPresentOrElse(
                         sceneManager::showBattle,
-                        () -> showAlert("Errore", "Impossibile caricare: " + saveName)
+                        () -> showAlert("Error", "Cannot load save: " + saveName)
                 )
         );
     }
@@ -91,7 +89,6 @@ public class MainMenuController {
         javafx.application.Platform.exit();
     }
 
-    // --- Metodi di supporto ---
 
     private Button createButton(String text, Runnable action) {
         Button btn = new Button(text);

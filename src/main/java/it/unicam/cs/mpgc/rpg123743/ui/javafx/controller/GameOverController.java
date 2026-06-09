@@ -42,13 +42,13 @@ public class GameOverController {
 
         boolean victory = state.getCurrentPhase() == GameState.Phase.VICTORY;
 
-        Text result = new Text(victory ? "VITTORIA!" : "SCONFITTA");
+        Text result = new Text(victory ? "VICTORY" : "DEFEAT");
         result.getStyleClass().add(victory ? "victory-text" : "defeat-text");
 
-        Text turns = new Text("Turni completati: " + state.getTurnNumber());
+        Text turns = new Text("Turs: " + state.getTurnNumber());
         turns.getStyleClass().add("subtitle");
 
-        Button menuBtn = new Button("Menu Principale");
+        Button menuBtn = new Button("Main Menu");
         menuBtn.getStyleClass().add("menu-button");
         menuBtn.setOnAction(e -> sceneManager.showMainMenu());
 

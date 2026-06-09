@@ -76,7 +76,6 @@ public class BattleController {
         return root;
     }
 
-    // --- Costruttori della vista ---
 
     private HBox buildTopBar() {
         HBox bar = new HBox(20);
@@ -87,11 +86,11 @@ public class BattleController {
         turnLabel = new Label(getTurnText());
         turnLabel.getStyleClass().add("turn-label");
 
-        Button endTurnBtn = new Button("Fine Turno");
+        Button endTurnBtn = new Button("End Turn");
         endTurnBtn.getStyleClass().add("action-button");
         endTurnBtn.setOnAction(e -> onEndTurn());
 
-        Button saveBtn = new Button("Salva");
+        Button saveBtn = new Button("Save");
         saveBtn.getStyleClass().add("action-button");
         saveBtn.setOnAction(e -> onSave());
 
@@ -136,7 +135,6 @@ public class BattleController {
         return bar;
     }
 
-    // --- Rendering della griglia ---
 
     private void refreshGrid() {
         mapGrid.getChildren().clear();
@@ -176,7 +174,6 @@ public class BattleController {
         return pane;
     }
 
-    // --- Logica di interazione ---
 
     private void onCellClicked(Position pos) {
         if (state.getCurrentPhase() != GameState.Phase.PLAYER_TURN) return;
@@ -233,7 +230,7 @@ public class BattleController {
         clearSelection();
         turnService.endPlayerTurn(state);
         turnLabel.setText(getTurnText());
-        log("--- Turno Nemico ---");
+        log("Enemy Turn");
         refreshGrid();
 
         enemyService.executeTurn(state);
@@ -246,16 +243,15 @@ public class BattleController {
 
         turnService.endEnemyTurn(state);
         turnLabel.setText(getTurnText());
-        log("--- Turno Giocatore " + state.getTurnNumber() + " ---");
+        log("Player Turn " + state.getTurnNumber());
         refreshGrid();
     }
 
     private void onSave() {
         saveService.save(state);
-        log("Partita salvata.");
+        log("Game Saved");
     }
 
-    // --- Metodi di supporto ---
 
     private void clearSelection() {
         selectedUnit    = null;
@@ -266,23 +262,23 @@ public class BattleController {
 
     private void refreshSidePanel() {
         unitInfoPanel.getChildren().clear();
-        Label header = new Label(selectedUnit == null ? "Seleziona unità" : selectedUnit.getName());
+        Label header = new Label(selectedUnit == null ? "Select a unit" : selectedUnit.getName());
         header.getStyleClass().add("panel-header");
         unitInfoPanel.getChildren().add(header);
 
         if (selectedUnit != null) {
             Stats s = selectedUnit.getStats();
             unitInfoPanel.getChildren().addAll(
-                    new Label("Classe:  " + selectedUnit.getUnitClass()),
-                    new Label("Livello: " + selectedUnit.getLevel()),
+                    new Label("Class:  " + selectedUnit.getUnitClass()),
+                    new Label("Level: " + selectedUnit.getLevel()),
                     new Label("HP:      " + s.getCurrentHp() + "/" + s.getMaxHp()),
                     new Label("ATK:     " + s.getAttack()),
-                    new Label("DIF:     " + s.getDefence()),
+                    new Label("DEF:     " + s.getDefence()),
                     new Label("RES:     " + s.getResistance()),
-                    new Label("VEL:     " + s.getSpeed()),
+                    new Label("SPD:     " + s.getSpeed()),
                     new Label("MOV:     " + s.getMovement()),
-                    new Label("Arma:    " + (selectedUnit.getEquippedWeapon() == null
-                            ? "Nessuna" : selectedUnit.getEquippedWeapon().getName()))
+                    new Label("Weapon:    " + (selectedUnit.getEquippedWeapon() == null
+                            ? "None" : selectedUnit.getEquippedWeapon().getName()))
             );
         }
     }
@@ -300,7 +296,12 @@ public class BattleController {
     }
 
     private String getTurnText() {
-        return "Turno " + state.getTurnNumber() + "  —  " + state.getCurrentPhase();
+        return switch (state.getCurrentPhase()) {
+            case PLAYER_TURN -> "Turn " + state.getTurnNumber() + "  —  Player";
+            case ENEMY_TURN  -> "Turn " + state.getTurnNumber() + "  —  Enemy";
+            case VICTORY     -> "Turn " + state.getTurnNumber() + "  —  Victory";
+            case DEFEAT      -> "Turn " + state.getTurnNumber() + "  —  Defeat";
+        };
     }
 
     private String getUnitSymbol(Unit unit) {
