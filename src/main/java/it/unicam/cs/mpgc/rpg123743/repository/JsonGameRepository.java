@@ -65,10 +65,10 @@ public class JsonGameRepository implements GameRepository {
         Path filePath = resolveFilePath(state.getSaveName());
         try (Writer writer = Files.newBufferedWriter(filePath)) {
             gson.toJson(state, writer);
-            LOGGER.info("Partita salvata: " + filePath);
+            LOGGER.info("Saved Game: " + filePath);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Errore nel salvataggio: " + state.getSaveName(), e);
-            throw new RepositoryException("Impossibile salvare la partita: " + state.getSaveName(), e);
+            LOGGER.log(Level.SEVERE, "Failed to save: " + state.getSaveName(), e);
+            throw new RepositoryException("Could not save game: " + state.getSaveName(), e);
         }
     }
 
@@ -87,11 +87,12 @@ public class JsonGameRepository implements GameRepository {
         }
         try (Reader reader = Files.newBufferedReader(filePath)) {
             GameState state = gson.fromJson(reader, GameState.class);
-            LOGGER.info("Partita caricata: " + filePath);
+            state.rebuildMapState();
+            LOGGER.info("Game loaded: " + filePath);
             return Optional.of(state);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Errore nel caricamento: " + saveName, e);
-            throw new RepositoryException("Impossibile caricare la partita: " + saveName, e);
+            LOGGER.log(Level.SEVERE, "Failed to load: " + saveName, e);
+            throw new RepositoryException("Could not load game: " + saveName, e);
         }
     }
 
@@ -110,7 +111,7 @@ public class JsonGameRepository implements GameRepository {
                     .sorted()
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Errore nel recupero dei salvataggi.", e);
+            LOGGER.log(Level.WARNING, "Failed to list saves", e);
             return Collections.emptyList();
         }
     }
@@ -126,14 +127,12 @@ public class JsonGameRepository implements GameRepository {
         Path filePath = resolveFilePath(saveName);
         try {
             Files.deleteIfExists(filePath);
-            LOGGER.info("Salvataggio eliminato: " + saveName);
+            LOGGER.info("Save deleted: " + saveName);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Errore nell'eliminazione: " + saveName, e);
-            throw new RepositoryException("Impossibile eliminare il salvataggio: " + saveName, e);
+            LOGGER.log(Level.SEVERE, "Failed to delete save: " + saveName, e);
+            throw new RepositoryException("Could not delete save: " + saveName, e);
         }
     }
-
-    // --- Metodi privati di supporto ---
 
     /** Restituisce il percorso completo del file JSON per il nome del salvataggio dato. */
     private Path resolveFilePath(String saveName) {
@@ -145,7 +144,7 @@ public class JsonGameRepository implements GameRepository {
         try {
             Files.createDirectories(saveDirectory);
         } catch (IOException e) {
-            throw new RepositoryException("Impossibile creare la cartella dei salvataggi: " + saveDirectory, e);
+            throw new RepositoryException("Could not create save directory: " + saveDirectory, e);
         }
     }
 

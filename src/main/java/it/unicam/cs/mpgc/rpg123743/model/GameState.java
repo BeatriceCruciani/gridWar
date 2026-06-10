@@ -68,6 +68,23 @@ public class GameState {
         return currentPhase == Phase.PLAYER_TURN || currentPhase == Phase.ENEMY_TURN;
     }
 
+    /**
+     * Ripristina il posizionamento delle unità sulla griglia dopo il caricamento da JSON.
+     * Gson deserializza le unità ma non le collega alle celle della mappa.
+     * Questo metodo deve essere chiamato dopo ogni caricamento.
+     */
+    public void rebuildMapState() {
+        BattleMap map = getBattleMap();
+        for (Faction faction : Faction.values()) {
+            map.getUnitsByFaction(faction).forEach(unit -> {
+                Cell cell = map.getCell(unit.getPosition());
+                if (!cell.isOccupied()) {
+                    cell.setOccupant(unit);
+                }
+            });
+        }
+    }
+
     /** Imposta la fase corrente del gioco. */
     public void setPhase(Phase phase) { this.currentPhase = phase; }
 
