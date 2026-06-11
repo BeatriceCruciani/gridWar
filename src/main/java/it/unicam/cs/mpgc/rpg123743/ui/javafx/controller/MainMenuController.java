@@ -9,7 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-
+import it.unicam.cs.mpgc.rpg123743.model.MapLevel;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,8 +60,22 @@ public class MainMenuController {
     }
 
     private void onNewGame() {
-        GameState state = GameStateFactory.createDefaultGame();
-        sceneManager.showBattle(state);
+        List<MapLevel> levels = List.of(MapLevel.values());
+        List<String> options  = levels.stream()
+                .map(l -> l.getDisplayName() + " - " + l.getDescription())
+                .toList();
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(options.get(0), options);
+        dialog.setTitle("New Game");
+        dialog.setHeaderText("Select a map");
+        dialog.setContentText("Map:");
+
+        dialog.showAndWait().ifPresent(choice -> {
+            int index     = options.indexOf(choice);
+            MapLevel level = levels.get(index);
+            GameState state = GameStateFactory.createGame(level);
+            sceneManager.showBattle(state);
+        });
     }
 
     private void onLoadGame() {
