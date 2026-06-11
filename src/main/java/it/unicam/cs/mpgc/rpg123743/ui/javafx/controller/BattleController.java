@@ -173,6 +173,12 @@ public class BattleController {
             pane.getChildren().add(label);
         }
 
+        if (cell.isBreakableWall()) {
+            Label wallLabel = new Label("W\n" + cell.getWallHp());
+            wallLabel.getStyleClass().add("wall-breakable");
+            pane.getChildren().add(wallLabel);
+        }
+
         pane.setOnMouseClicked(e -> onCellClicked(pos));
         return pane;
     }
@@ -203,6 +209,22 @@ public class BattleController {
             selectedUnit.markAsMoved();
             reachableCells  = new HashSet<>();
             attackableCells = movementService.getAttackRange(selectedUnit, map);
+            refreshGrid();
+            return;
+        }
+
+        // Caso 1b: cella attaccabile con muro distruttibile → attacca il muro
+        if (selectedUnit != null && attackableCells.contains(pos)
+                && cell.isBreakableWall()) {
+            boolean destroyed = cell.damageWall(selectedUnit.getStats().getAttack());
+            if (destroyed) {
+                log(selectedUnit.getName() + " destroyed a wall at " + pos + "!");
+            } else {
+                log(selectedUnit.getName() + " attacked a wall at " + pos +
+                        " — " + cell.getWallHp() + " HP remaining.");
+            }
+            selectedUnit.markAsActed();
+            clearSelection();
             refreshGrid();
             return;
         }

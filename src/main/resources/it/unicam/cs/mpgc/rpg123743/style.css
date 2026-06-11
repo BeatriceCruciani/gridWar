@@ -81,6 +81,15 @@
 .terrain-mountain { -fx-background-color: #5a5a6e; }
 .terrain-fort     { -fx-background-color: #8b6914; }
 .terrain-wall     { -fx-background-color: #1a1a1a; -fx-cursor: default; }
+.terrain-breakable_wall {
+    -fx-background-color: #8b4513;
+}
+
+.wall-breakable {
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-alignment: center;
+}
 
 .cell-selected    { -fx-border-color: #ffdd57; -fx-border-width: 3; }
 .cell-reachable   { -fx-background-color: #1a6bb5; }

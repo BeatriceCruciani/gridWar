@@ -81,13 +81,14 @@ public class GameStateFactory {
     }
 
     private static TerrainType fortSiegeTerrain(int r, int c) {
+        // Muri distruttibili
+        if (r == 6 && c == 4) return TerrainType.BREAKABLE_WALL;
+        if (r == 6 && c == 6) return TerrainType.BREAKABLE_WALL;
         // Mura esterne del forte
         if (r == 2 && c >= 3 && c <= 7) return TerrainType.WALL;
         if (r == 6 && c >= 3 && c <= 7) return TerrainType.WALL;
         if (c == 3 && r >= 2 && r <= 6) return TerrainType.WALL;
         if (c == 7 && r >= 2 && r <= 6) return TerrainType.WALL;
-        // Ingresso del forte
-        if (r == 6 && c == 5) return TerrainType.PLAIN;
         // Interno del forte con forti
         if (r >= 3 && r <= 5 && c >= 4 && c <= 6) return TerrainType.FORT;
         // Foresta ai lati
@@ -117,10 +118,8 @@ public class GameStateFactory {
         placeUnit(map, buildWarrior("Commander",    Faction.ENEMY, new Position(3, 5)));
     }
 
-    // =========================================================
-    // MAPPA 3 — Frozen Pass
-    // =========================================================
 
+    // MAPPA 3 — Frozen Pass
     private static GameState createFrozenPass() {
         BattleMap map = new BattleMap("Frozen Pass", 10, 10);
         for (int r = 0; r < 10; r++)
@@ -174,10 +173,7 @@ public class GameStateFactory {
         placeUnit(map, buildKnight("Warlord",       Faction.ENEMY, new Position(0, 4)));
     }
 
-    // =========================================================
     // Builder delle unità — condivisi tra tutte le mappe
-    // =========================================================
-
     private static Unit buildWarrior(String name, Faction faction, Position pos) {
         Stats stats = new Stats(30, 12, 8, 3, 6, 4);
         Unit unit = new Unit(name, faction, UnitClass.WARRIOR, stats, pos);

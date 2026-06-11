@@ -5,10 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8aef90d-08b1-4dd1-814a-5dd1d1399bb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/MapLevel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Stats.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Stats.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/TerrainType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/TerrainType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Unit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Unit.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/util/GameStateFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/util/GameStateFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
