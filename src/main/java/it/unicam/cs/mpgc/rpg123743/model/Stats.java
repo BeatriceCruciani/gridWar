@@ -13,7 +13,7 @@ package it.unicam.cs.mpgc.rpg123743.model;
  */
 public class Stats {
 
-    private final int maxHp;
+    private int maxHp;
     private int currentHp;
     private int attack;
     private int defence;
@@ -88,4 +88,25 @@ public class Stats {
     public int getSpeed() { return speed; }
     /** Restituisce il numero di celle percorribili per turno. */
     public int getMovement() { return movement; }
+
+    /**
+     * Applica i bonus statistici al level up.
+     * Aumenta tutte le statistiche dei valori specificati.
+     *
+     * @param hp         bonus HP massimi.
+     * @param atk        bonus attacco.
+     * @param def        bonus difesa.
+     * @param res        bonus resistenza.
+     * @param spd        bonus velocità.
+     * @param mov        bonus movimento.
+     */
+    public void applyLevelUp(int hp, int atk, int def, int res, int spd, int mov) {
+        this.maxHp     += hp;
+        this.currentHp += hp;
+        this.attack    += atk;
+        this.defence   += def;
+        this.resistance += res;
+        this.speed     += spd;
+        this.movement  += mov;
+    }
 }

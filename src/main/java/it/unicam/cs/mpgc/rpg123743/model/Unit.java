@@ -59,7 +59,6 @@ public class Unit {
         this.experience = 0;
     }
 
-    // --- Inventario ---
 
     /**
      * Aggiunge un oggetto all'inventario dell'unità se c'è spazio disponibile.
@@ -105,7 +104,6 @@ public class Unit {
         return Collections.unmodifiableList(inventory);
     }
 
-    // --- Stato del turno ---
 
     /**
      * Azzera lo stato del turno dell'unità all'inizio di un nuovo turno.
@@ -136,7 +134,6 @@ public class Unit {
         return hasMovedThisTurn && hasActedThisTurn;
     }
 
-    // --- Esperienza e livellamento ---
 
     /**
      * Aggiunge esperienza all'unità. Se viene raggiunta la soglia necessaria,
@@ -151,12 +148,36 @@ public class Unit {
         if (this.experience >= EXPERIENCE_PER_LEVEL) {
             this.experience -= EXPERIENCE_PER_LEVEL;
             this.level++;
+            applyLevelUpBonus();
             return true;
         }
         return false;
     }
 
-    // --- Query sullo stato ---
+    /**
+     * Applica i bonus statistici al level up.
+     * Ogni livello aumenta leggermente le statistiche dell'unità.
+     */
+    private void applyLevelUpBonus() {
+        switch (unitClass) {
+            case WARRIOR -> {
+                stats.applyLevelUp(3, 2, 1, 0, 1, 0);
+            }
+            case MAGE -> {
+                stats.applyLevelUp(2, 3, 0, 2, 1, 0);
+            }
+            case ARCHER -> {
+                stats.applyLevelUp(2, 2, 1, 1, 2, 0);
+            }
+            case KNIGHT -> {
+                stats.applyLevelUp(3, 1, 3, 1, 0, 0);
+            }
+            case THIEF -> {
+                stats.applyLevelUp(1, 1, 1, 1, 3, 1);
+            }
+        }
+    }
+
 
     /** Restituisce {@code true} se l'unità è ancora in vita. */
     public boolean isAlive() {
@@ -168,7 +189,6 @@ public class Unit {
         return this.faction != other.faction;
     }
 
-    // --- Getter ---
 
     /** Restituisce il nome dell'unità. */
     public String getName() { return name; }

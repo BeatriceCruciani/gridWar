@@ -123,6 +123,21 @@
     -fx-font-size: 13px;
 }
 
+.hp-bar {
+    -fx-pref-height: 6px;
+}
+
+.hp-bar > .track {
+    -fx-background-color: #333333;
+    -fx-background-radius: 2;
+}
+
+.hp-bar > .bar {
+    -fx-background-radius: 2;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
 /* ===== Combat Log ===== */
 .combat-log {
     -fx-control-inner-background: #0a0a1a;

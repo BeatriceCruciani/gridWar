@@ -5,9 +5,9 @@ import it.unicam.cs.mpgc.rpg123743.service.*;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.SceneManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 
@@ -15,10 +15,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Controller per la schermata principale di battaglia.
- * Gestisce il rendering della griglia, la selezione delle unità,
- * il movimento e il combattimento, l'avanzamento dei turni
- * e delega i turni nemici a EnemyService.
+ * Controller for the main battle screen.
+ * Handles grid rendering, unit selection, movement and combat,
+ * turn progression and delegates AI turns to EnemyService.
  */
 public class BattleController {
 
@@ -32,20 +31,15 @@ public class BattleController {
     private final EnemyService    enemyService;
     private final SaveService     saveService;
 
-    // Stato della UI
     private Unit selectedUnit;
     private Set<Position> reachableCells  = new HashSet<>();
     private Set<Position> attackableCells = new HashSet<>();
 
-    // Nodi UI
     private GridPane mapGrid;
     private TextArea combatLog;
     private VBox     unitInfoPanel;
     private Label    turnLabel;
 
-    /**
-     * Costruisce un nuovo BattleController con tutti i service necessari.
-     */
     public BattleController(SceneManager sceneManager, GameState state,
                             CombatService combatService, MovementService movementService,
                             TurnService turnService, EnemyService enemyService,
@@ -59,23 +53,19 @@ public class BattleController {
         this.saveService     = saveService;
     }
 
-    /**
-     * Costruisce e restituisce la vista completa della battaglia.
-     *
-     * @return il nodo radice della schermata di battaglia.
-     */
+    // =========================================================
+    // View builders
+    // =========================================================
+
     public BorderPane buildView() {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("battle-screen");
-
         root.setTop(buildTopBar());
         root.setCenter(buildMapGrid());
         root.setRight(buildSidePanel());
         root.setBottom(buildBottomBar());
-
         return root;
     }
-
 
     private HBox buildTopBar() {
         HBox bar = new HBox(20);
@@ -135,17 +125,17 @@ public class BattleController {
         return bar;
     }
 
+    // =========================================================
+    // Grid rendering
+    // =========================================================
 
     private void refreshGrid() {
         mapGrid.getChildren().clear();
         BattleMap map = state.getBattleMap();
-
         for (int r = 0; r < map.getRows(); r++) {
             for (int c = 0; c < map.getCols(); c++) {
-                Position pos  = new Position(r, c);
-                Cell cell     = map.getCell(pos);
-                StackPane pane = buildCellPane(cell, pos);
-                mapGrid.add(pane, c, r);
+                Position pos = new Position(r, c);
+                mapGrid.add(buildCellPane(map.getCell(pos), pos), c, r);
             }
         }
     }
@@ -156,25 +146,14 @@ public class BattleController {
         pane.getStyleClass().add("cell");
         pane.getStyleClass().add("terrain-" + cell.getTerrainType().name().toLowerCase());
 
-        if (reachableCells.contains(pos)) {
-            pane.getStyleClass().add("cell-reachable");
-        } else if (attackableCells.contains(pos)) {
-            pane.getStyleClass().add("cell-attackable");
-        }
-        if (selectedUnit != null && selectedUnit.getPosition().equals(pos))
-            pane.getStyleClass().add("cell-selected");
+        applyCellHighlight(pane, pos);
 
         if (cell.isOccupied()) {
-            Unit unit  = cell.getOccupant();
-            Label label = new Label(getUnitSymbol(unit));
-            label.getStyleClass().add(
-                    unit.getFaction() == Faction.PLAYER ? "unit-player" : "unit-enemy"
-            );
-            pane.getChildren().add(label);
+            pane.getChildren().add(buildUnitBox(cell.getOccupant()));
         }
 
         if (cell.isBreakableWall()) {
-            Label wallLabel = new Label("W\n" + cell.getWallHp());
+            Label wallLabel = new Label("BW\n" + cell.getWallHp());
             wallLabel.getStyleClass().add("wall-breakable");
             pane.getChildren().add(wallLabel);
         }
@@ -183,6 +162,44 @@ public class BattleController {
         return pane;
     }
 
+    private void applyCellHighlight(StackPane pane, Position pos) {
+        if (reachableCells.contains(pos)) {
+            pane.getStyleClass().add("cell-reachable");
+        } else if (attackableCells.contains(pos)) {
+            pane.getStyleClass().add("cell-attackable");
+        }
+        if (selectedUnit != null && selectedUnit.getPosition().equals(pos)) {
+            pane.getStyleClass().add("cell-selected");
+        }
+    }
+
+    private VBox buildUnitBox(Unit unit) {
+        Label label = new Label(getUnitSymbol(unit));
+        label.getStyleClass().add(
+                unit.getFaction() == Faction.PLAYER ? "unit-player" : "unit-enemy"
+        );
+
+        double hpPercent = (double) unit.getStats().getCurrentHp() / unit.getStats().getMaxHp();
+        ProgressBar hpBar = new ProgressBar(hpPercent);
+        hpBar.setPrefWidth(CELL_SIZE - 8);
+        hpBar.setPrefHeight(6);
+        hpBar.getStyleClass().add("hp-bar");
+        hpBar.setStyle(getHpBarColor(hpPercent));
+
+        VBox box = new VBox(2, label, hpBar);
+        box.setAlignment(Pos.CENTER);
+        return box;
+    }
+
+    private String getHpBarColor(double hpPercent) {
+        if (hpPercent > 0.5)  return "-fx-accent: #44ff44;";
+        if (hpPercent > 0.25) return "-fx-accent: #ffaa00;";
+        return "-fx-accent: #ff4444;";
+    }
+
+    // =========================================================
+    // Interaction logic
+    // =========================================================
 
     private void onCellClicked(Position pos) {
         if (state.getCurrentPhase() != GameState.Phase.PLAYER_TURN) return;
@@ -190,20 +207,16 @@ public class BattleController {
         BattleMap map = state.getBattleMap();
         Cell cell     = map.getCell(pos);
 
-        // Caso 0: mostra le stat di qualsiasi unità cliccata
-        if (cell.isOccupied()) {
-            Unit clicked = cell.getOccupant();
-            if (clicked.getFaction() == Faction.ENEMY) {
-                if (selectedUnit != null && attackableCells.contains(pos)) {
-                } else {
-                    showUnitInfo(clicked);
-                    refreshGrid();
-                    return;
-                }
+        // Case 0: show enemy stats (unless we are about to attack)
+        if (cell.isOccupied() && cell.getOccupant().getFaction() == Faction.ENEMY) {
+            if (selectedUnit == null || !attackableCells.contains(pos)) {
+                showUnitInfo(cell.getOccupant());
+                refreshGrid();
+                return;
             }
         }
 
-        // Caso 1: cella raggiungibile vuota → sposta l'unità selezionata
+        // Case 1: move selected unit to reachable empty cell
         if (selectedUnit != null && reachableCells.contains(pos) && !cell.isOccupied()) {
             map.moveUnit(selectedUnit, pos);
             selectedUnit.markAsMoved();
@@ -213,15 +226,15 @@ public class BattleController {
             return;
         }
 
-        // Caso 1b: cella attaccabile con muro distruttibile → attacca il muro
+        // Case 1b: attack breakable wall
         if (selectedUnit != null && attackableCells.contains(pos)
-                && cell.isBreakableWall()) {
+                && cell.isBreakableWall() && !selectedUnit.hasActedThisTurn()) {
             boolean destroyed = cell.damageWall(selectedUnit.getStats().getAttack());
             if (destroyed) {
                 log(selectedUnit.getName() + " destroyed a wall at " + pos + "!");
             } else {
                 log(selectedUnit.getName() + " attacked a wall at " + pos +
-                        " — " + cell.getWallHp() + " HP remaining.");
+                        " - " + cell.getWallHp() + " HP remaining.");
             }
             selectedUnit.markAsActed();
             clearSelection();
@@ -229,14 +242,14 @@ public class BattleController {
             return;
         }
 
-        // Caso 2: cella attaccabile con nemico → attacca
+        // Case 2: attack enemy unit
         if (selectedUnit != null && attackableCells.contains(pos)
-                && cell.isOccupied() && cell.getOccupant().isEnemy(selectedUnit)) {
+                && cell.isOccupied() && cell.getOccupant().isEnemy(selectedUnit)
+                && !selectedUnit.hasActedThisTurn()) {
             CombatResult result = combatService.resolve(selectedUnit, cell.getOccupant(), map);
             logCombat(result);
             turnService.removeDefeatedUnits(state);
             clearSelection();
-
             if (turnService.checkVictory(state) || turnService.checkDefeat(state)) {
                 sceneManager.showGameOver(state);
                 return;
@@ -245,7 +258,7 @@ public class BattleController {
             return;
         }
 
-        // Caso 3: cella con unità del giocatore → seleziona
+        // Case 3: select player unit
         if (cell.isOccupied()
                 && cell.getOccupant().getFaction() == Faction.PLAYER
                 && !cell.getOccupant().hasFinishedTurn()) {
@@ -259,22 +272,49 @@ public class BattleController {
             return;
         }
 
-        // Caso 4: click altrove → deseleziona
+        // Case 4: deselect
         clearSelection();
         refreshGrid();
     }
+
+    private void onEndTurn() {
+        clearSelection();
+        turnService.endPlayerTurn(state);
+        turnLabel.setText(getTurnText());
+        log("--- Enemy Turn ---");
+        refreshGrid();
+
+        enemyService.executeTurn(state);
+        turnService.removeDefeatedUnits(state);
+
+        if (turnService.checkVictory(state) || turnService.checkDefeat(state)) {
+            sceneManager.showGameOver(state);
+            return;
+        }
+
+        turnService.endEnemyTurn(state);
+        turnLabel.setText(getTurnText());
+        log("--- Player Turn " + state.getTurnNumber() + " ---");
+        refreshGrid();
+    }
+
+    private void onSave() {
+        saveService.save(state);
+        log("Game saved.");
+    }
+
+    // =========================================================
+    // Side panel
+    // =========================================================
 
     private void showUnitInfo(Unit unit) {
         unitInfoPanel.getChildren().clear();
         Label header = new Label(unit.getName());
         header.getStyleClass().add("panel-header");
-
-        String faction = unit.getFaction() == Faction.PLAYER ? "[Player]" : "[Enemy]";
         Stats s = unit.getStats();
-
         unitInfoPanel.getChildren().addAll(
                 header,
-                new Label(faction),
+                new Label(unit.getFaction() == Faction.PLAYER ? "[Player]" : "[Enemy]"),
                 new Label("Class:  " + unit.getUnitClass()),
                 new Label("Level:  " + unit.getLevel()),
                 new Label("HP:     " + s.getCurrentHp() + "/" + s.getMaxHp()),
@@ -288,40 +328,6 @@ public class BattleController {
         );
     }
 
-    private void onEndTurn() {
-        clearSelection();
-        turnService.endPlayerTurn(state);
-        turnLabel.setText(getTurnText());
-        log("Enemy Turn");
-        refreshGrid();
-
-        enemyService.executeTurn(state);
-        turnService.removeDefeatedUnits(state);
-
-        if (turnService.checkVictory(state) || turnService.checkDefeat(state)) {
-            sceneManager.showGameOver(state);
-            return;
-        }
-
-        turnService.endEnemyTurn(state);
-        turnLabel.setText(getTurnText());
-        log("Player Turn " + state.getTurnNumber());
-        refreshGrid();
-    }
-
-    private void onSave() {
-        saveService.save(state);
-        log("Game Saved");
-    }
-
-
-    private void clearSelection() {
-        selectedUnit    = null;
-        reachableCells  = new HashSet<>();
-        attackableCells = new HashSet<>();
-        refreshSidePanel();
-    }
-
     private void refreshSidePanel() {
         if (selectedUnit != null) {
             showUnitInfo(selectedUnit);
@@ -333,10 +339,21 @@ public class BattleController {
         }
     }
 
+    // =========================================================
+    // Helpers
+    // =========================================================
+
+    private void clearSelection() {
+        selectedUnit    = null;
+        reachableCells  = new HashSet<>();
+        attackableCells = new HashSet<>();
+        refreshSidePanel();
+    }
+
     private void logCombat(CombatResult result) {
         log(result.toString());
         if (result.isAttackerLevelledUp()) {
-            log(result.getAttacker().getName() + " ha guadagnato un livello! Ora Lv." +
+            log(result.getAttacker().getName() + " levelled up! Now Lv." +
                     result.getAttacker().getLevel());
         }
     }
@@ -347,10 +364,10 @@ public class BattleController {
 
     private String getTurnText() {
         return switch (state.getCurrentPhase()) {
-            case PLAYER_TURN -> "Turn " + state.getTurnNumber() + "  —  Player";
-            case ENEMY_TURN  -> "Turn " + state.getTurnNumber() + "  —  Enemy";
-            case VICTORY     -> "Turn " + state.getTurnNumber() + "  —  Victory";
-            case DEFEAT      -> "Turn " + state.getTurnNumber() + "  —  Defeat";
+            case PLAYER_TURN -> "Turn " + state.getTurnNumber() + "  -  Player";
+            case ENEMY_TURN  -> "Turn " + state.getTurnNumber() + "  -  Enemy";
+            case VICTORY     -> "Turn " + state.getTurnNumber() + "  -  Victory!";
+            case DEFEAT      -> "Turn " + state.getTurnNumber() + "  -  Defeat";
         };
     }
 
