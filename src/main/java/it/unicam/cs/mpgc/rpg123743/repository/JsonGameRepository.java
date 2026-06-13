@@ -2,12 +2,8 @@ package it.unicam.cs.mpgc.rpg123743.repository;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
-import it.unicam.cs.mpgc.rpg123743.model.Consumable;
 import it.unicam.cs.mpgc.rpg123743.model.GameState;
 import it.unicam.cs.mpgc.rpg123743.model.Item;
-import it.unicam.cs.mpgc.rpg123743.model.Weapon;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -149,17 +145,16 @@ public class JsonGameRepository implements GameRepository {
     }
 
     /**
-     * Costruisce un'istanza Gson con RuntimeTypeAdapterFactory per le sottoclassi di Item.
-     * Questo permette la corretta serializzazione e deserializzazione di Weapon e Consumable.
+     * Costruisce un'istanza Gson con un adapter personalizzato che utilizza
+     * le reflection di Java (Class.forName) per deserializzare le sottoclassi di Item.
+     * L'adapter legge il campo "itemType" dal JSON e istanzia la classe corretta
+     * (es. "Weapon" → Weapon.class) senza dover registrare manualmente ogni sottoclasse.
+     * Questo approccio rispetta l'Open/Closed Principle — nuove sottoclassi di Item
+     * vengono gestite automaticamente senza modificare questo metodo.
      */
     private Gson buildGson() {
-        RuntimeTypeAdapterFactory<Item> itemAdapter = RuntimeTypeAdapterFactory
-                .of(Item.class, "itemType")
-                .registerSubtype(Weapon.class, "Weapon")
-                .registerSubtype(Consumable.class, "Consumable");
-
         return new GsonBuilder()
-                .registerTypeAdapterFactory(itemAdapter)
+                .registerTypeHierarchyAdapter(Item.class, new ItemTypeAdapter())
                 .setPrettyPrinting()
                 .create();
     }
