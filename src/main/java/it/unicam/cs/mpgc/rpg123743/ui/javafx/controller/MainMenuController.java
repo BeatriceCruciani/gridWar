@@ -1,64 +1,46 @@
 package it.unicam.cs.mpgc.rpg123743.ui.javafx.controller;
 
 import it.unicam.cs.mpgc.rpg123743.model.GameState;
+import it.unicam.cs.mpgc.rpg123743.model.MapLevel;
 import it.unicam.cs.mpgc.rpg123743.service.SaveService;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.SceneManager;
 import it.unicam.cs.mpgc.rpg123743.util.GameStateFactory;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import it.unicam.cs.mpgc.rpg123743.model.MapLevel;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceDialog;
+
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Controller per la schermata del menu principale.
+ * La struttura visiva è definita in main-menu.fxml.
  * Fornisce le opzioni per iniziare una nuova partita,
  * caricare un salvataggio esistente o uscire dal gioco.
  */
 public class MainMenuController {
 
-    private final SceneManager sceneManager;
-    private final SaveService  saveService;
+    private SceneManager sceneManager;
+    private SaveService  saveService;
 
     /**
-     * Costruisce un nuovo MainMenuController.
-     *
-     * @param sceneManager il gestore delle scene per la navigazione.
-     * @param saveService  il service per il caricamento dei salvataggi.
+     * Costruttore senza argomenti richiesto da FXMLLoader.
      */
-    public MainMenuController(SceneManager sceneManager, SaveService saveService) {
+    public MainMenuController() {}
+
+    /**
+     * Inizializza il controller con i service necessari.
+     * Chiamato da SceneManager dopo il caricamento dell'FXML.
+     *
+     * @param sceneManager il gestore delle scene.
+     * @param saveService  il service per i salvataggi.
+     */
+    public void init(SceneManager sceneManager, SaveService saveService) {
         this.sceneManager = sceneManager;
         this.saveService  = saveService;
     }
 
-    /**
-     * Costruisce e restituisce la vista del menu principale.
-     *
-     * @return il nodo radice della schermata del menu principale.
-     */
-    public VBox buildView() {
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
-        root.setPadding(new Insets(40));
-        root.getStyleClass().add("main-menu");
-
-        Text title    = new Text("GRIDWAR");
-        title.getStyleClass().add("title");
-
-        Text subtitle = new Text("A Tactical RPG");
-        subtitle.getStyleClass().add("subtitle");
-
-        Button newGameBtn  = createButton("New Game", this::onNewGame);
-        Button loadGameBtn = createButton("Load Game", this::onLoadGame);
-        Button quitBtn     = createButton("Quit", this::onQuit);
-
-        root.getChildren().addAll(title, subtitle, newGameBtn, loadGameBtn, quitBtn);
-        return root;
-    }
-
+    @FXML
     private void onNewGame() {
         List<MapLevel> levels = List.of(MapLevel.values());
         List<String> options  = levels.stream()
@@ -71,17 +53,18 @@ public class MainMenuController {
         dialog.setContentText("Map:");
 
         dialog.showAndWait().ifPresent(choice -> {
-            int index     = options.indexOf(choice);
+            int index      = options.indexOf(choice);
             MapLevel level = levels.get(index);
             GameState state = GameStateFactory.createGame(level);
             sceneManager.showBattle(state);
         });
     }
 
+    @FXML
     private void onLoadGame() {
         List<String> saves = saveService.listSaves();
         if (saves.isEmpty()) {
-            showAlert("No Saves", "No saved games to load");
+            showAlert("No Saves", "No saved games to load.");
             return;
         }
 
@@ -99,17 +82,9 @@ public class MainMenuController {
         );
     }
 
+    @FXML
     private void onQuit() {
         javafx.application.Platform.exit();
-    }
-
-
-    private Button createButton(String text, Runnable action) {
-        Button btn = new Button(text);
-        btn.getStyleClass().add("menu-button");
-        btn.setOnAction(e -> action.run());
-        btn.setPrefWidth(200);
-        return btn;
     }
 
     private void showAlert(String title, String message) {

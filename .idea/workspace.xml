@@ -5,12 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8aef90d-08b1-4dd1-814a-5dd1d1399bb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/ItemTypeAdapter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/game-over.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/main-menu.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/JsonGameRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/JsonGameRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/SceneManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/SceneManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/GameOverController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/GameOverController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" afterDir="false" />
