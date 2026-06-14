@@ -5,9 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8aef90d-08b1-4dd1-814a-5dd1d1399bb9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/SceneManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/SceneManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/GameOverController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/GameOverController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/archer-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/archer-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/knight-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/knight-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/mage-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/mage-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/thief-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/thief-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/warrior-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/warrior-player.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,6 +97,11 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.JavaFX&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprites" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="gridWar [run]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>

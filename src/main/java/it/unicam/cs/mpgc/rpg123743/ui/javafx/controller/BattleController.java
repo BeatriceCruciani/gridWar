@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
+import javafx.scene.control.TextInputDialog;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,9 +54,6 @@ public class BattleController {
         this.saveService     = saveService;
     }
 
-    // =========================================================
-    // View builders
-    // =========================================================
 
     public BorderPane buildView() {
         BorderPane root = new BorderPane();
@@ -125,9 +123,6 @@ public class BattleController {
         return bar;
     }
 
-    // =========================================================
-    // Grid rendering
-    // =========================================================
 
     private void refreshGrid() {
         mapGrid.getChildren().clear();
@@ -174,10 +169,7 @@ public class BattleController {
     }
 
     private VBox buildUnitBox(Unit unit) {
-        Label label = new Label(getUnitSymbol(unit));
-        label.getStyleClass().add(
-                unit.getFaction() == Faction.PLAYER ? "unit-player" : "unit-enemy"
-        );
+        javafx.scene.Node graphic = loadUnitSprite(unit);
 
         double hpPercent = (double) unit.getStats().getCurrentHp() / unit.getStats().getMaxHp();
         ProgressBar hpBar = new ProgressBar(hpPercent);
@@ -186,9 +178,47 @@ public class BattleController {
         hpBar.getStyleClass().add("hp-bar");
         hpBar.setStyle(getHpBarColor(hpPercent));
 
-        VBox box = new VBox(2, label, hpBar);
+        VBox box = new VBox(2, graphic, hpBar);
         box.setAlignment(Pos.CENTER);
         return box;
+    }
+
+    /**
+     * Carica lo sprite PNG dell'unità dalla cartella resources/sprites.
+     * Se lo sprite non esiste, usa una label con la lettera della classe.
+     */
+    private javafx.scene.Node loadUnitSprite(Unit unit) {
+        String faction = unit.getFaction() == Faction.PLAYER ? "player" : "enemy";
+        String fileName = switch (unit.getUnitClass()) {
+            case WARRIOR -> "warrior-" + faction + ".png";
+            case MAGE    -> "mage-" + faction + ".png";
+            case ARCHER  -> "archer-" + faction + ".png";
+            case KNIGHT  -> "knight-" + faction + ".png";
+            case THIEF   -> "thief-" + faction + ".png";
+        };
+
+        var stream = getClass().getResourceAsStream(
+                "/it/unicam/cs/mpgc/rpg123743/sprites/" + fileName
+        );
+
+        if (stream != null) {
+            javafx.scene.image.Image img = new javafx.scene.image.Image(stream);
+            javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(img);
+            imageView.setFitWidth(CELL_SIZE - 16);
+            imageView.setFitHeight(CELL_SIZE - 16);
+            imageView.setPreserveRatio(true);
+            if (unit.getFaction() == Faction.PLAYER) {
+                imageView.setScaleX(-1);
+            }
+            return imageView;
+        }
+
+        // Fallback alla lettera se lo sprite non esiste
+        Label label = new Label(getUnitSymbol(unit));
+        label.getStyleClass().add(
+                unit.getFaction() == Faction.PLAYER ? "unit-player" : "unit-enemy"
+        );
+        return label;
     }
 
     private String getHpBarColor(double hpPercent) {
@@ -197,9 +227,6 @@ public class BattleController {
         return "-fx-accent: #ff4444;";
     }
 
-    // =========================================================
-    // Interaction logic
-    // =========================================================
 
     private void onCellClicked(Position pos) {
         if (state.getCurrentPhase() != GameState.Phase.PLAYER_TURN) return;
@@ -299,13 +326,22 @@ public class BattleController {
     }
 
     private void onSave() {
-        saveService.save(state);
-        log("Game saved.");
+        TextInputDialog dialog = new TextInputDialog("save1");
+        dialog.setTitle("Save Game");
+        dialog.setHeaderText("Enter a name for your save");
+        dialog.setContentText("Save name:");
+
+        dialog.showAndWait().ifPresent(saveName -> {
+            if (saveName == null || saveName.isBlank()) {
+                log("Save cancelled — name cannot be empty.");
+                return;
+            }
+            GameState namedState = new GameState(saveName, state.getBattleMap());
+            saveService.save(namedState);
+            log("Game saved as: " + saveName);
+        });
     }
 
-    // =========================================================
-    // Side panel
-    // =========================================================
 
     private void showUnitInfo(Unit unit) {
         unitInfoPanel.getChildren().clear();
@@ -339,9 +375,6 @@ public class BattleController {
         }
     }
 
-    // =========================================================
-    // Helpers
-    // =========================================================
 
     private void clearSelection() {
         selectedUnit    = null;
