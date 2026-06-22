@@ -3,13 +3,13 @@ package it.unicam.cs.mpgc.rpg123743.model;
 /**
  * Rappresenta le statistiche di un'unità in GridWar.
  * Utilizzata sia come statistiche base della classe sia come statistiche correnti dell'unità.
- *   maxHp: punti ferita massimi
- *   currentHp: punti ferita attuali
- *   attack: potere d'attacco fisico o magico
- *   defence: riduzione dei danni contro attacchi fisici
- *   resistance: riduzione dei danni contro attacchi magici
- *   speed: influenza la probabilità di colpire e di schivare
- *   movement: numero di celle percorribili per turno
+ * maxHp: punti ferita massimi
+ * currentHp: punti ferita attuali
+ * attack: potere d'attacco fisico o magico
+ * defence: riduzione dei danni contro attacchi fisici
+ * resistance: riduzione dei danni contro attacchi magici
+ * speed: influenza la probabilità di colpire e di schivare
+ * movement: numero di celle percorribili per turno
  */
 public class Stats {
 
@@ -57,41 +57,44 @@ public class Stats {
     }
 
     /**
-     * Ripristina HP all'unità, fino al massimo consentito.
+     * Ripristina i punti ferita (HP) all'unità, fino al massimo consentito.
+     * Sincronizzato terminologicamente con la logica di cura globale del gioco.
      *
      * @param amount la quantità di HP da ripristinare (non negativa).
      * @throws IllegalArgumentException se amount è negativo.
      */
-    public void restoreHp(int amount) {
+    public void heal(int amount) {
         if (amount < 0) throw new IllegalArgumentException("Heal amount must be non-negative.");
         this.currentHp = Math.min(maxHp, this.currentHp + amount);
     }
 
     /**
      * Restituisce {@code true} se l'unità non ha più HP rimanenti.
+     * * @return {@code true} se l'unità è sconfitta, {@code false} altrimenti.
      */
     public boolean isDead() {
         return currentHp <= 0;
     }
 
-    /** Restituisce i punti ferita massimi. */
+    /** @return i punti ferita massimi. */
     public int getMaxHp() { return maxHp; }
-    /** Restituisce i punti ferita attuali. */
+    /** @return i punti ferita attuali. */
     public int getCurrentHp() { return currentHp; }
-    /** Restituisce il potere d'attacco. */
+    /** @return il potere d'attacco. */
     public int getAttack() { return attack; }
-    /** Restituisce la difesa fisica. */
+    /** @return la difesa fisica. */
     public int getDefence() { return defence; }
-    /** Restituisce la resistenza magica. */
+    /** @return la resistenza magica. */
     public int getResistance() { return resistance; }
-    /** Restituisce la velocità. */
+    /** @return la velocità. */
     public int getSpeed() { return speed; }
-    /** Restituisce il numero di celle percorribili per turno. */
+    /** @return il numero di celle percorribili per turno. */
     public int getMovement() { return movement; }
 
     /**
      * Applica i bonus statistici al level up.
      * Aumenta tutte le statistiche dei valori specificati.
+     * Garantisce che i bonus passati siano coerenti (non negativi).
      *
      * @param hp         bonus HP massimi.
      * @param atk        bonus attacco.
@@ -99,8 +102,12 @@ public class Stats {
      * @param res        bonus resistenza.
      * @param spd        bonus velocità.
      * @param mov        bonus movimento.
+     * @throws IllegalArgumentException se uno qualsiasi dei bonus è negativo.
      */
     public void applyLevelUp(int hp, int atk, int def, int res, int spd, int mov) {
+        if (hp < 0 || atk < 0 || def < 0 || res < 0 || spd < 0 || mov < 0) {
+            throw new IllegalArgumentException("Level up bonuses cannot be negative.");
+        }
         this.maxHp     += hp;
         this.currentHp += hp;
         this.attack    += atk;

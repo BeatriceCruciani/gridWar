@@ -3,7 +3,7 @@ package it.unicam.cs.mpgc.rpg123743.model;
 /**
  * Rappresenta un oggetto generico che un'unità può portare nel proprio inventario.
  * Gli oggetti hanno una durabilità limitata (numero di utilizzi rimanenti).
- * Una durabilità pari a -1 indica che l'oggetto ha utilizzi infiniti.
+ * Una durabilità pari a -1 indica che l'oggetto ha utilizzi infiniti (es. armi leggendarie).
  * I tipi concreti di oggetto devono estendere questa classe.
  */
 public abstract class Item {
@@ -18,11 +18,14 @@ public abstract class Item {
      * @param name        il nome dell'oggetto (non nullo né vuoto).
      * @param description la descrizione dell'oggetto.
      * @param durability  il numero di utilizzi disponibili (-1 per infiniti).
-     * @throws IllegalArgumentException se il nome è nullo o vuoto.
+     * @throws IllegalArgumentException se il nome è vuoto o se la durabilità è minore di -1.
      */
     protected Item(String name, String description, int durability) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Item name must not be blank.");
+        }
+        if (durability < -1) {
+            throw new IllegalArgumentException("Durability cannot be less than -1. Got: " + durability);
         }
         this.name = name;
         this.description = description;
@@ -46,6 +49,7 @@ public abstract class Item {
 
     /**
      * Restituisce {@code true} se questo oggetto ha durabilità infinita.
+     * @return {@code true} se indistruttibile.
      */
     public boolean isUnbreakable() {
         return durability == -1;
@@ -53,6 +57,7 @@ public abstract class Item {
 
     /**
      * Restituisce {@code true} se questo oggetto ha ancora utilizzi disponibili.
+     * @return {@code true} se l'oggetto può essere utilizzato.
      */
     public boolean isUsable() {
         return isUnbreakable() || durability > 0;
@@ -61,9 +66,14 @@ public abstract class Item {
     /**
      * Consuma un utilizzo di questo oggetto.
      * Non ha effetto sugli oggetti con durabilità infinita.
+     *
+     * @throws IllegalStateException se si tenta di usare un oggetto già esaurito.
      */
     public void use() {
-        if (!isUnbreakable() && durability > 0) {
+        if (!isUsable()) {
+            throw new IllegalStateException("Cannot use an exhausted item: " + name);
+        }
+        if (!isUnbreakable()) {
             durability--;
         }
     }

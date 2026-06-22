@@ -3,8 +3,9 @@ package it.unicam.cs.mpgc.rpg123743.model;
 import java.util.Objects;
 
 /**
- * Rappresenta una posizione immutabile sulla griglia della mappa di battaglia.
+ * Rappresenta una posizione immutabile sulla griglia della mappa di battaglia di GridWar.
  * Una posizione è definita da un indice di riga e uno di colonna, entrambi a base zero.
+ * Essendo un Value Object immutabile, è intrinsecamente thread-safe e sicura da condividere.
  */
 public final class Position {
 
@@ -20,30 +21,32 @@ public final class Position {
      */
     public Position(int row, int col) {
         if (row < 0 || col < 0) {
-            throw new IllegalArgumentException("Row and column must be non-negative.");
+            throw new IllegalArgumentException("Row and column must be non-negative. Got: (" + row + ", " + col + ")");
         }
         this.row = row;
         this.col = col;
     }
 
-    /** Restituisce l'indice di riga. */
+    /** @return l'indice di riga. */
     public int getRow() {
         return row;
     }
 
-    /** Restituisce l'indice di colonna. */
+    /** @return l'indice di colonna. */
     public int getCol() {
         return col;
     }
 
     /**
      * Calcola la distanza di Manhattan tra questa posizione e un'altra.
-     * Utilizzata per calcolare il raggio di movimento e di attacco delle unità.
+     * Utilizzata per determinare il raggio di movimento e la gittata di attacco/cura.
      *
-     * @param other la posizione di destinazione.
-     * @return la distanza di Manhattan tra le due posizioni.
+     * @param other la posizione di destinazione (non nulla).
+     * @return la distanza di Manhattan (numero di celle) tra le due posizioni.
+     * @throws NullPointerException se other è nullo.
      */
     public int distanceTo(Position other) {
+        Objects.requireNonNull(other, "Target position must not be null.");
         return Math.abs(this.row - other.row) + Math.abs(this.col - other.col);
     }
 

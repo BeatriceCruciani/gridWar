@@ -3,12 +3,18 @@ package it.unicam.cs.mpgc.rpg123743.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Rappresenta un'unità sulla mappa di battaglia.
+ * Rappresenta un'unità sulla mappa di battaglia in stile Fire Emblem.
  * Un'unità appartiene a una fazione, ha una classe, delle statistiche,
- * una posizione sulla griglia e un inventario di oggetti.
+ * una posizione sulla griglia e un inventario di oggetti limitato.
  * Ogni turno un'unità può muoversi una volta e compiere un'azione una volta.
+ *
+ * <p>Questa classe è l'unico punto d'ingresso per modificare gli HP dell'unità
+ * (tramite {@link #heal(int)} e {@link #takeDamage(int)}): {@link Stats} resta
+ * un contenitore di dati senza conoscenza delle regole di gioco (es. permadeath).
+ * {@link #getStats()} è da considerarsi accesso in sola lettura.</p>
  */
 public class Unit {
 
@@ -44,21 +50,17 @@ public class Unit {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Unit name must not be blank.");
         }
-        if (faction == null || unitClass == null || stats == null || position == null) {
-            throw new IllegalArgumentException("Unit fields must not be null.");
-        }
         this.name = name;
-        this.faction = faction;
-        this.unitClass = unitClass;
-        this.stats = stats;
-        this.position = position;
+        this.faction = Objects.requireNonNull(faction, "Faction must not be null.");
+        this.unitClass = Objects.requireNonNull(unitClass, "Unit class must not be null.");
+        this.stats = Objects.requireNonNull(stats, "Stats must not be null.");
+        this.position = Objects.requireNonNull(position, "Position must not be null.");
         this.inventory = new ArrayList<>();
         this.hasMovedThisTurn = false;
         this.hasActedThisTurn = false;
         this.level = 1;
         this.experience = 0;
     }
-
 
     /**
      * Aggiunge un oggetto all'inventario dell'unità se c'è spazio disponibile.
@@ -74,12 +76,19 @@ public class Unit {
 
     /**
      * Rimuove un oggetto dall'inventario dell'unità.
+     * Se l'oggetto rimosso era l'arma attualmente equipaggiata, l'unità
+     * viene automaticamente disarmata per evitare di mantenere un riferimento
+     * a un'arma che non possiede più.
      *
      * @param item l'oggetto da rimuovere.
      * @return {@code true} se l'oggetto è stato rimosso, {@code false} se non era presente.
      */
     public boolean removeItem(Item item) {
-        return inventory.remove(item);
+        boolean removed = inventory.remove(item);
+        if (removed && item.equals(equippedWeapon)) {
+            this.equippedWeapon = null;
+        }
+        return removed;
     }
 
     /**
@@ -104,7 +113,6 @@ public class Unit {
         return Collections.unmodifiableList(inventory);
     }
 
-
     /**
      * Azzera lo stato del turno dell'unità all'inizio di un nuovo turno.
      */
@@ -113,105 +121,139 @@ public class Unit {
         this.hasActedThisTurn = false;
     }
 
-    /**
-     * Segna questa unità come già mossa in questo turno.
-     */
-    public void markAsMoved() {
-        this.hasMovedThisTurn = true;
-    }
+    /** Segna questa unità come già mossa in questo turno. */
+    public void markAsMoved() { this.hasMovedThisTurn = true; }
 
-    /**
-     * Segna questa unità come già azione compiuta in questo turno.
-     */
-    public void markAsActed() {
-        this.hasActedThisTurn = true;
-    }
+    /** Segna questa unità come già azione compiuta in questo turno. */
+    public void markAsActed() { this.hasActedThisTurn = true; }
 
     /**
      * Restituisce {@code true} se l'unità ha completato sia il movimento sia l'azione in questo turno.
+     *
+     * @return {@code true} se il turno dell'unità è concluso.
      */
     public boolean hasFinishedTurn() {
         return hasMovedThisTurn && hasActedThisTurn;
     }
 
+    /**
+     * Ripristina una quantità specificata di punti vita (HP) all'unità.
+     * Non ha effetto se l'unità è già stata sconfitta (permadeath).
+     * La logica di calcolo del tetto massimo è delegata a {@link Stats}.
+     *
+     * @param amount la quantità di HP da ripristinare (deve essere positiva).
+     * @throws IllegalArgumentException se amount è minore o uguale a zero.
+     */
+    public void heal(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Heal amount must be positive. Got: " + amount);
+        }
+        if (!isAlive()) {
+            return; // Permadeath: le unità a 0 HP non possono essere curate
+        }
+        this.stats.heal(amount);
+    }
 
     /**
-     * Aggiunge esperienza all'unità. Se viene raggiunta la soglia necessaria,
-     * l'unità guadagna un livello (fino al livello massimo {@value MAX_LEVEL}).
+     * Applica danno all'unità. Questo è l'unico punto d'ingresso previsto per
+     * infliggere danno: centralizza qui eventuali future regole di gioco legate
+     * al danno (es. invulnerabilità temporanea, danno riflesso, trigger di eventi),
+     * evitando che il combat system manipoli {@link Stats} direttamente.
+     *
+     * @param amount la quantità di danno da applicare (deve essere non negativa).
+     * @throws IllegalArgumentException se amount è negativo.
+     */
+    public void takeDamage(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Damage amount must be non-negative. Got: " + amount);
+        }
+        this.stats.applyDamage(amount);
+    }
+
+    /**
+     * Aggiunge esperienza all'unità. Se vengono raggiunte una o più soglie di livello
+     * in un'unica chiamata (es. grandi quantità di esperienza), l'unità sale di
+     * più livelli consecutivamente, fino al livello massimo {@value MAX_LEVEL}.
      *
      * @param amount la quantità di esperienza da aggiungere.
-     * @return {@code true} se l'unità ha guadagnato un livello.
+     * @return {@code true} se l'unità ha guadagnato almeno un livello.
      */
     public boolean gainExperience(int amount) {
         if (level >= MAX_LEVEL) return false;
         this.experience += amount;
-        if (this.experience >= EXPERIENCE_PER_LEVEL) {
+        boolean leveledUp = false;
+        while (this.experience >= EXPERIENCE_PER_LEVEL && level < MAX_LEVEL) {
             this.experience -= EXPERIENCE_PER_LEVEL;
             this.level++;
             applyLevelUpBonus();
-            return true;
+            leveledUp = true;
         }
-        return false;
+        return leveledUp;
     }
 
     /**
-     * Applica i bonus statistici al level up.
-     * Ogni livello aumenta leggermente le statistiche dell'unità.
+     * Applica i bonus statistici al level up delegando la responsabilità a {@link UnitClass}.
+     * Questo approccio rispetta il principio Open/Closed (OCP), rimuovendo switch rigidi.
      */
     private void applyLevelUpBonus() {
-        switch (unitClass) {
-            case WARRIOR -> {
-                stats.applyLevelUp(3, 2, 1, 0, 1, 0);
-            }
-            case MAGE -> {
-                stats.applyLevelUp(2, 3, 0, 2, 1, 0);
-            }
-            case ARCHER -> {
-                stats.applyLevelUp(2, 2, 1, 1, 2, 0);
-            }
-            case KNIGHT -> {
-                stats.applyLevelUp(3, 1, 3, 1, 0, 0);
-            }
-            case THIEF -> {
-                stats.applyLevelUp(1, 1, 1, 1, 3, 1);
-            }
-        }
+        this.unitClass.applyLevelUp(this.stats);
     }
 
-
-    /** Restituisce {@code true} se l'unità è ancora in vita. */
+    /**
+     * Restituisce {@code true} se l'unità è ancora in vita.
+     *
+     * @return {@code true} se l'unità è ancora in vita.
+     */
     public boolean isAlive() {
         return !stats.isDead();
     }
 
-    /** Restituisce {@code true} se l'unità specificata appartiene a una fazione avversaria. */
+    /**
+     * Restituisce {@code true} se l'unità specificata appartiene a una fazione avversaria.
+     *
+     * @param other l'altra unità da verificare.
+     * @return {@code true} se è un nemico.
+     */
     public boolean isEnemy(Unit other) {
         return this.faction != other.faction;
     }
 
-
-    /** Restituisce il nome dell'unità. */
+    /** @return il nome dell'unità. */
     public String getName() { return name; }
-    /** Restituisce la fazione dell'unità. */
-    public Faction getFaction() { return faction; }
-    /** Restituisce la classe dell'unità. */
-    public UnitClass getUnitClass() { return unitClass; }
-    /** Restituisce le statistiche dell'unità. */
-    public Stats getStats() { return stats; }
-    /** Restituisce l'arma attualmente equipaggiata, o {@code null} se nessuna. */
-    public Weapon getEquippedWeapon() { return equippedWeapon; }
-    /** Restituisce la posizione corrente dell'unità sulla griglia. */
-    public Position getPosition() { return position; }
-    /** Restituisce {@code true} se l'unità si è già mossa in questo turno. */
-    public boolean hasMovedThisTurn() { return hasMovedThisTurn; }
-    /** Restituisce {@code true} se l'unità ha già compiuto un'azione in questo turno. */
-    public boolean hasActedThisTurn() { return hasActedThisTurn; }
-    /** Restituisce il livello corrente dell'unità. */
-    public int getLevel() { return level; }
-    /** Restituisce l'esperienza accumulata nel livello corrente. */
-    public int getExperience() { return experience; }
 
-    // --- Setter (solo la posizione cambia durante il gameplay) ---
+    /** @return la fazione di appartenenza. */
+    public Faction getFaction() { return faction; }
+
+    /** @return la classe dell'unità. */
+    public UnitClass getUnitClass() { return unitClass; }
+
+    /**
+     * Restituisce le statistiche dell'unità. Da considerarsi accesso in sola
+     * lettura: per modificare gli HP usare esclusivamente {@link #heal(int)}
+     * e {@link #takeDamage(int)}, che applicano le regole di gioco (es. permadeath)
+     * prima di delegare a {@link Stats}.
+     *
+     * @return le statistiche dell'unità.
+     */
+    public Stats getStats() { return stats; }
+
+    /** @return l'arma attualmente equipaggiata, o {@code null} se nessuna. */
+    public Weapon getEquippedWeapon() { return equippedWeapon; }
+
+    /** @return la posizione corrente sulla griglia. */
+    public Position getPosition() { return position; }
+
+    /** @return {@code true} se l'unità si è già mossa in questo turno. */
+    public boolean hasMovedThisTurn() { return hasMovedThisTurn; }
+
+    /** @return {@code true} se l'unità ha già agito in questo turno. */
+    public boolean hasActedThisTurn() { return hasActedThisTurn; }
+
+    /** @return il livello corrente dell'unità. */
+    public int getLevel() { return level; }
+
+    /** @return l'esperienza corrente dell'unità. */
+    public int getExperience() { return experience; }
 
     /**
      * Aggiorna la posizione dell'unità sulla griglia.
