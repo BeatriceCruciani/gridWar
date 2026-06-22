@@ -11,7 +11,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.scene.control.TextInputDialog;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -139,8 +138,8 @@ public class BattleController {
         StackPane pane = new StackPane();
         pane.setPrefSize(CELL_SIZE, CELL_SIZE);
         pane.getStyleClass().add("cell");
-        pane.getStyleClass().add("terrain-" + cell.getTerrainType().name().toLowerCase());
 
+        pane.getChildren().add(loadTerrainTile(cell));
         applyCellHighlight(pane, pos);
 
         if (cell.isOccupied()) {
@@ -155,6 +154,39 @@ public class BattleController {
 
         pane.setOnMouseClicked(e -> onCellClicked(pos));
         return pane;
+    }
+
+    /**
+     * Carica la tile dell'immagine corrispondente al tipo di terreno della cella.
+     * Se l'immagine non esiste, applica il colore CSS di fallback.
+     */
+    private javafx.scene.Node loadTerrainTile(Cell cell) {
+        String fileName = switch (cell.getTerrainType()) {
+            case PLAIN          -> "plain.png";
+            case FOREST         -> "forest1.png";
+            case MOUNTAIN       -> "wall-fort.png";
+            case FORT           -> "wall-fort-angle.png";
+            case WALL           -> "wall-fort.png";
+            case BREAKABLE_WALL -> "wall-fort-breakable.png";
+        };
+
+        var stream = getClass().getResourceAsStream(
+                "/it/unicam/cs/mpgc/rpg123743/sprites/terrain/" + fileName
+        );
+
+        if (stream != null) {
+            javafx.scene.image.Image img = new javafx.scene.image.Image(stream);
+            javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(img);
+            imageView.setFitWidth(CELL_SIZE);
+            imageView.setFitHeight(CELL_SIZE);
+            return imageView;
+        }
+
+        // Fallback
+        StackPane fallback = new StackPane();
+        fallback.getStyleClass().add("terrain-" + cell.getTerrainType().name().toLowerCase());
+        fallback.setPrefSize(CELL_SIZE, CELL_SIZE);
+        return fallback;
     }
 
     private void applyCellHighlight(StackPane pane, Position pos) {
@@ -198,7 +230,7 @@ public class BattleController {
         };
 
         var stream = getClass().getResourceAsStream(
-                "/it/unicam/cs/mpgc/rpg123743/sprites/" + fileName
+                "/it/unicam/cs/mpgc/rpg123743/sprites/units/" + fileName
         );
 
         if (stream != null) {

@@ -5,18 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8aef90d-08b1-4dd1-814a-5dd1d1399bb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/archer-enemy.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/archer-player.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/knight-enemy.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/knight-player.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/mage-enemy.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/mage-player.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/thief-enemy.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/thief-player.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/warrior-enemy.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/warrior-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/plain.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/wall-fort-angle.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/wall-fort-breakable.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/wall-fort.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/archer-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/archer-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/knight-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/knight-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/mage-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/mage-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/thief-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/thief-player.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/warrior-enemy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/units/warrior-player.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/archer-enemy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/archer-player.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/knight-enemy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/knight-player.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/mage-enemy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/mage-player.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/thief-enemy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/thief-player.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/warrior-enemy.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/warrior-player.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,22 +99,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.gridWar [run].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/crbea/IdeaProjects/ProgettoMGC_BeatriceCruciani&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.JavaFX&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.gridWar [run].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/crbea/IdeaProjects/gridWar/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "preferences.JavaFX"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprites\terrain" />
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprites\units" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprite\" />
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprite" />
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprites\units\units" />
+      <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprites\units" />
       <recent name="C:\Users\crbea\IdeaProjects\gridWar\src\main\resources\it\unicam\cs\mpgc\rpg123743\sprites" />
     </key>
   </component>
