@@ -18,6 +18,14 @@ import java.util.stream.Collectors;
  * L'unico punto di ingresso per modificare questa relazione deve essere
  * questa classe (tramite {@link #placeUnit(Unit)} e {@link #removeUnit(Unit)}),
  * per evitare che le due fonti di verità si desincronizzino.</p>
+ *
+ * <p><b>Nota sulla persistenza:</b> {@code activeUnits} è marcato {@code transient}
+ * e non viene serializzato da Gson. La griglia ({@code grid}) è l'unica fonte di
+ * verità persistita: dopo ogni deserializzazione è necessario invocare
+ * {@link #rebuildActiveUnitsRegistry()} per ricostruire il registro a partire
+ * dagli occupanti delle celle. Questo evita che Gson crei due istanze distinte
+ * della stessa unità (una nella cella, una nel registro), che romperebbero
+ * l'invariante di identità tra i due riferimenti dopo un round-trip JSON.</p>
  */
 public class BattleMap {
 
@@ -26,8 +34,12 @@ public class BattleMap {
     private final int cols;
     private final Cell[][] grid;
 
-    /** Registro delle unità attualmente presenti sulla mappa per garantire efficienza O(1) e O(N). */
-    private final Set<Unit> activeUnits;
+    /**
+     * Registro delle unità attualmente presenti sulla mappa per garantire efficienza O(1) e O(N).
+     * Marcato {@code transient}: non viene serializzato, va ricostruito dopo il caricamento
+     * tramite {@link #rebuildActiveUnitsRegistry()}.
+     */
+    private transient Set<Unit> activeUnits;
 
     /**
      * Costruisce una nuova mappa di battaglia con le dimensioni specificate.
@@ -62,6 +74,28 @@ public class BattleMap {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 grid[r][c] = new Cell(new Position(r, c), TerrainType.PLAIN);
+            }
+        }
+    }
+
+    /**
+     * Ricostruisce il registro {@code activeUnits} scansionando la griglia e
+     * raccogliendo tutte le celle occupate. Deve essere invocato esplicitamente
+     * dopo ogni deserializzazione (es. da {@code JsonGameRepository.load()}),
+     * dato che Gson non popola i campi {@code transient}.
+     *
+     * <p>Se {@code activeUnits} non è ancora stato inizializzato (caso tipico
+     * subito dopo una deserializzazione, dove Gson bypassa il costruttore),
+     * viene creato qui.</p>
+     */
+    public void rebuildActiveUnitsRegistry() {
+        this.activeUnits = new HashSet<>();
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                Cell cell = grid[r][c];
+                if (cell != null && cell.isOccupied()) {
+                    activeUnits.add(cell.getOccupant());
+                }
             }
         }
     }

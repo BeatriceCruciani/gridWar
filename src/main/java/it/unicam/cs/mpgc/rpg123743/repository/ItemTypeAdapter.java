@@ -5,52 +5,47 @@ import it.unicam.cs.mpgc.rpg123743.model.Item;
 import java.lang.reflect.Type;
 
 /**
- * Adapter personalizzato per la serializzazione/deserializzazione polimorfica di Item.
- * Utilizza le reflection di Java (Class.forName) per istanziare la sottoclasse corretta
- * leggendo il campo "itemType" dal JSON (es. "Weapon" → Weapon.class).
- * Usa un Gson interno senza adapter per evitare ricorsione infinita.
+ * Adattatore polimorfico per la serializzazione di oggetti Item.
+ * Salva il nome della classe concreta nel JSON per permettere la corretta
+ * deserializzazione degli oggetti astratti (Weapon, HealingPotion, ecc.).
+ *
+ * <p>Utilizza un'istanza Gson interna "grezza", priva dell'adapter polimorfico
+ * registrato, per serializzare/deserializzare i campi specifici della classe
+ * concreta. Questo evita una ricorsione infinita: dato che l'adapter è
+ * registrato tramite {@code registerTypeHierarchyAdapter} su tutta la gerarchia
+ * di {@code Item}, usare il {@code JsonSerializationContext} principale per
+ * serializzare i dettagli richiamerebbe nuovamente questo stesso adapter,
+ * causando uno {@link StackOverflowError}.</p>
  */
-public class ItemTypeAdapter implements JsonDeserializer<Item>, JsonSerializer<Item> {
+public class ItemTypeAdapter implements JsonSerializer<Item>, JsonDeserializer<Item> {
 
-    private static final String TYPE_FIELD    = "itemType";
-    private static final String MODEL_PACKAGE = "it.unicam.cs.mpgc.rpg123743.model.";
-
-    // Gson interno senza l'adapter — evita la ricorsione infinita
-    private final Gson internalGson = new Gson();
+    private static final String CLASS_META_KEY = "type";
+    private static final String PROPERTIES_KEY = "properties";
 
     /**
-     * Serializza un Item aggiungendo il campo "itemType" con il nome semplice della classe.
-     * Esempio: una Weapon diventa "itemType": "Weapon"
+     * Gson "grezzo", senza alcun type adapter polimorfico registrato.
+     * Usato esclusivamente per (de)serializzare i campi specifici della
+     * sottoclasse concreta, evitando di richiamare ricorsivamente questo adapter.
      */
+    private final Gson delegateGson = new Gson();
+
     @Override
     public JsonElement serialize(Item src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject jsonObject = internalGson.toJsonTree(src, src.getClass()).getAsJsonObject();
-        jsonObject.addProperty(TYPE_FIELD, src.getClass().getSimpleName());
-        return jsonObject;
+        JsonObject result = new JsonObject();
+        result.addProperty(CLASS_META_KEY, src.getClass().getName());
+        result.add(PROPERTIES_KEY, delegateGson.toJsonTree(src, src.getClass()));
+        return result;
     }
 
-    /**
-     * Deserializza un Item leggendo il campo "itemType" e usando Class.forName
-     * per istanziare la sottoclasse corretta tramite reflection.
-     *
-     * @throws JsonParseException se il campo "itemType" manca o la classe non esiste.
-     */
     @Override
-    public Item deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
+    public Item deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-
-        if (!jsonObject.has(TYPE_FIELD)) {
-            throw new JsonParseException("Missing '" + TYPE_FIELD + "' field in Item JSON.");
-        }
-
-        String typeName = jsonObject.get(TYPE_FIELD).getAsString();
-
+        String className = jsonObject.get(CLASS_META_KEY).getAsString();
         try {
-            Class<?> clazz = Class.forName(MODEL_PACKAGE + typeName);
-            return (Item) internalGson.fromJson(jsonObject, clazz);
+            Class<?> clazz = Class.forName(className);
+            return (Item) delegateGson.fromJson(jsonObject.get(PROPERTIES_KEY), clazz);
         } catch (ClassNotFoundException e) {
-            throw new JsonParseException("Unknown Item type: " + typeName, e);
+            throw new JsonParseException("Classe non trovata durante la deserializzazione: " + className, e);
         }
     }
 }
