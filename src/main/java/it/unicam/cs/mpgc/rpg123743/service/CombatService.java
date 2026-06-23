@@ -1,12 +1,14 @@
 package it.unicam.cs.mpgc.rpg123743.service;
 
 import it.unicam.cs.mpgc.rpg123743.model.*;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Gestisce la risoluzione del combattimento tra due unità.
- * Dopo che l'attaccante colpisce, il difensore contrattacca se è in gittata.
- * L'esperienza viene assegnata all'attaccante in base all'esito.
- * Questo service è indipendente dalla UI ed è completamente testabile in isolamento.
+ * Gestisce la risoluzione del combattimento tra due unità secondo le regole tattiche di GridWar.
+ * L'attaccante effettua il primo assalto, seguito dal contrattacco del difensore se quest'ultimo
+ * è ancora in vita ed è equipaggiato con un'arma con gittata sufficiente.
+ * Questo service è stateless, indipendente dalla UI e completamente testabile in isolamento.
  */
 public class CombatService {
 
@@ -14,58 +16,58 @@ public class CombatService {
     private static final int EXP_FOR_KILL   = 40;
     private static final int MIN_DAMAGE     = 0;
 
-    private final WeaponTriangle weaponTriangle;
-
     /**
-     * Costruisce un nuovo CombatService con il triangolo delle armi specificato.
-     *
-     * @param weaponTriangle il triangolo delle armi da usare per i calcoli.
-     * @throws IllegalArgumentException se weaponTriangle è nullo.
+     * Costruisce un nuovo CombatService.
+     * Essendo le regole del triangolo integrate direttamente nell'enum WeaponType del modello,
+     * questo servizio è ora completamente autonomo e privo di dipendenze esterne.
      */
-    public CombatService(WeaponTriangle weaponTriangle) {
-        if (weaponTriangle == null) throw new IllegalArgumentException("WeaponTriangle must not be null.");
-        this.weaponTriangle = weaponTriangle;
+    public CombatService() {
+        // Costruttore vuoto e pulito
     }
 
     /**
-     * Risolve uno scambio di combattimento completo tra attaccante e difensore.
-     * L'attaccante colpisce per primo; il difensore contrattacca se in gittata.
+     * Risolve uno scambio di combattimento completo tra un attaccante e un difensore sulla mappa.
+     * Applica i modificatori di danno, consuma la durabilità delle armi e assegna l'esperienza.
      *
-     * @param attacker l'unità che inizia il combattimento.
-     * @param defender l'unità che riceve l'attacco.
-     * @param map      la mappa di battaglia, usata per i bonus del terreno.
-     * @return un CombatResult che descrive l'esito completo dello scambio.
-     * @throws IllegalArgumentException se una delle unità non ha arma equipaggiata,
-     *                                  se una è già sconfitta, o se appartengono alla stessa fazione.
+     * @param attacker l'unità che avvia l'offensiva (non nulla).
+     * @param defender l'unità bersaglio del posizionamento (non nulla).
+     * @param map      la mappa di battaglia corrente per il calcolo dei bonus difensivi del terreno (non nulla).
+     * @return un {@link CombatResult} contenente il report dettagliato dello scontro.
+     * @throws IllegalArgumentException se le unità non possono legalmente combattere o sono fuori gittata.
+     * @throws NullPointerException se uno dei parametri in ingresso è nullo.
      */
     public CombatResult resolve(Unit attacker, Unit defender, BattleMap map) {
+        Objects.requireNonNull(map, "BattleMap cannot be null during combat resolution.");
         validateCombatants(attacker, defender);
 
-        Weapon attackerWeapon = attacker.getEquippedWeapon();
-        Weapon defenderWeapon = defender.getEquippedWeapon();
+        Weapon attackerWeapon = attacker.getEquippedWeapon()
+                .orElseThrow(() -> new IllegalStateException("Attacker must have a weapon equipped at this point."));
 
-        // --- L'attaccante colpisce ---
+        // --- 1. FASE OFFENSIVA: L'attaccante colpisce ---
         int damageDealt = calculateDamage(attacker, defender, map);
-        defender.getStats().applyDamage(damageDealt);
-        attackerWeapon.use();
+        defender.takeDamage(damageDealt);
+        attackerWeapon.use(); // Consuma la durabilità/usi dell'arma dell'attaccante
 
         boolean defenderDefeated = !defender.isAlive();
 
-        // --- Il difensore contrattacca se ancora in vita e in gittata ---
+        // --- 2. FASE DIFENSIVA: Il difensore contrattacca (se idoneo) ---
         int damageReceived  = 0;
         boolean attackerDefeated = false;
 
-        if (!defenderDefeated && defenderWeapon != null && canCounterAttack(attacker, defender)) {
+        if (!defenderDefeated && canCounterAttack(attacker, defender)) {
+            Weapon defenderWeapon = defender.getEquippedWeapon()
+                    .orElseThrow(() -> new IllegalStateException("Defender must have a weapon equipped at this point."));
             damageReceived = calculateDamage(defender, attacker, map);
-            attacker.getStats().applyDamage(damageReceived);
+            attacker.takeDamage(damageReceived);
             defenderWeapon.use();
             attackerDefeated = !attacker.isAlive();
         }
 
-        // --- Esperienza ---
+        // --- 3. FASE PREMIAZIONE: Calcolo e assegnazione dell'esperienza ---
         int expGained  = defenderDefeated ? EXP_FOR_KILL : EXP_FOR_ATTACK;
         boolean levelledUp = attacker.gainExperience(expGained);
 
+        // Segna l'unità come esausta per il turno corrente
         attacker.markAsActed();
 
         return new CombatResult(
@@ -77,57 +79,68 @@ public class CombatService {
     }
 
     /**
-     * Calcola i danni inflitti da un'unità a un bersaglio, applicando
-     * il moltiplicatore del triangolo delle armi e il bonus difensivo del terreno.
-     * Il danno minimo è zero.
+     * Calcola il danno netto inflitto da un'unità attaccante ("striker") verso un bersaglio ("target").
+     * Computa l'attacco base, il moltiplicatore del triangolo e sottrae le difese del bersaglio (terreno incluso).
      */
     private int calculateDamage(Unit striker, Unit target, BattleMap map) {
-        Weapon weapon       = striker.getEquippedWeapon();
-        Stats strikerStats  = striker.getStats();
-        Stats targetStats   = target.getStats();
+        Weapon weapon = striker.getEquippedWeapon()
+                .orElseThrow(() -> new IllegalStateException("Striker must have a weapon equipped to deal damage."));
+        Stats strikerStats = striker.getStats();
+        Stats targetStats  = target.getStats();
 
+        // Forza d'attacco totale dell'attaccante
         int baseAttack = strikerStats.getAttack() + weapon.getAttackBonus();
 
-        double triangleMultiplier = weaponTriangle.getMultiplier(
-                weapon.getWeaponType(),
-                target.getEquippedWeapon() != null ? target.getEquippedWeapon().getWeaponType() : null
-        );
+        // Calcolo del vantaggio tipologico sfruttando direttamente l'enum WeaponType
+        WeaponType targetWeaponType = target.getEquippedWeapon().map(Weapon::getWeaponType).orElse(null);
+        double triangleMultiplier = weapon.getWeaponType().getRelationAgainst(targetWeaponType).getMultiplier();
 
-        int defence = weapon.getWeaponType() == WeaponType.MAGIC
+        // Selezione della statistica difensiva corretta (Resistenza contro Magia, Difesa contro il Fisico)
+        int defence = (weapon.getWeaponType() == WeaponType.MAGIC)
                 ? targetStats.getResistance()
                 : targetStats.getDefence();
 
+        // Recupero del bonus difensivo offerto dalla cella occupata dal difensore
         int terrainBonus = map.getCell(target.getPosition()).getTerrainType().getDefenceBonus();
 
+        // Formula di danno finale: (Attacco * Moltiplicatore) - Difesa Totale
         int damage = (int) (baseAttack * triangleMultiplier) - defence - terrainBonus;
         return Math.max(MIN_DAMAGE, damage);
     }
 
     /**
-     * Restituisce {@code true} se il difensore può contrattaccare l'attaccante,
-     * in base alla gittata dell'arma del difensore e alla distanza tra le unità.
+     * Verifica se il difensore possiede i requisiti di gittata per rispondere all'attacco.
      */
     private boolean canCounterAttack(Unit attacker, Unit defender) {
-        Weapon defenderWeapon = defender.getEquippedWeapon();
-        if (defenderWeapon == null) return false;
+        Optional<Weapon> defenderWeapon = defender.getEquippedWeapon();
+        if (defenderWeapon.isEmpty()) return false;
+
         int distance = attacker.getPosition().distanceTo(defender.getPosition());
-        return defenderWeapon.getRange() >= distance;
+        return defenderWeapon.get().getRange() >= distance;
     }
 
     /**
-     * Valida che le due unità possano combattere tra loro.
-     *
-     * @throws IllegalArgumentException se le condizioni di combattimento non sono valide.
+     * Valida i requisiti formali di ingaggio per impedire azioni illegali a runtime.
      */
     private void validateCombatants(Unit attacker, Unit defender) {
-        if (attacker.getEquippedWeapon() == null) {
-            throw new IllegalArgumentException(attacker.getName() + " non ha un'arma equipaggiata.");
-        }
+        Objects.requireNonNull(attacker, "Attacker unit cannot be null.");
+        Objects.requireNonNull(defender, "Defender unit cannot be null.");
+
+        Weapon attackerWeapon = attacker.getEquippedWeapon()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "L'attaccante '" + attacker.getName() + "' non ha armi equipaggiate."));
+
         if (!attacker.isAlive() || !defender.isAlive()) {
-            throw new IllegalArgumentException("Non si può combattere con un'unità sconfitta.");
+            throw new IllegalArgumentException("Impossibile avviare uno scontro se uno dei partecipanti è già sconfitto.");
         }
         if (!attacker.isEnemy(defender)) {
-            throw new IllegalArgumentException("Non si può attaccare un'unità della stessa fazione.");
+            throw new IllegalArgumentException("Fuoco amico non consentito: le unità appartengono alla stessa fazione.");
+        }
+
+        int distance = attacker.getPosition().distanceTo(defender.getPosition());
+        if (attackerWeapon.getRange() < distance) {
+            throw new IllegalArgumentException("Attacco non valido: il difensore si trova fuori dalla gittata dell'arma ("
+                    + distance + " caselle di distanza contro un range massimo di " + attackerWeapon.getRange() + ").");
         }
     }
 }

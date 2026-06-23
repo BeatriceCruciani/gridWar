@@ -2,7 +2,6 @@ package it.unicam.cs.mpgc.rpg123743;
 
 import it.unicam.cs.mpgc.rpg123743.model.*;
 import it.unicam.cs.mpgc.rpg123743.service.CombatService;
-import it.unicam.cs.mpgc.rpg123743.service.WeaponTriangle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ class CombatServiceTest {
 
     @BeforeEach
     void setUp() {
-        combatService = new CombatService(new WeaponTriangle());
+        combatService = new CombatService();
         map = buildTestMap();
     }
 
@@ -33,7 +32,7 @@ class CombatServiceTest {
 
         CombatResult result = combatService.resolve(attacker, defender, map);
 
-        assertTrue(result.getDamageDealt() > 0);
+        assertTrue(result.damageDealt() > 0);
     }
 
     @Test
@@ -56,7 +55,7 @@ class CombatServiceTest {
         map2.placeUnit(lanceUser);
         CombatResult disadvantageResult = combatService.resolve(sword2, lanceUser, map2);
 
-        assertTrue(advantageResult.getDamageDealt() > disadvantageResult.getDamageDealt());
+        assertTrue(advantageResult.damageDealt() > disadvantageResult.damageDealt());
     }
 
     @Test
@@ -71,7 +70,7 @@ class CombatServiceTest {
 
         CombatResult result = combatService.resolve(attacker, defender, map);
 
-        assertTrue(result.getDamageReceived() > 0);
+        assertTrue(result.damageReceived() > 0);
     }
 
     @Test
@@ -79,14 +78,14 @@ class CombatServiceTest {
     void defeatedDefenderIsNotAlive() {
         Unit attacker = buildUnit("Hero",  Faction.PLAYER, UnitClass.WARRIOR,
                 new Stats(30, 100, 0, 0, 5, 4), new Position(0, 0), WeaponType.SWORD);
-        Unit defender = buildUnit("Enemy", Faction.ENEMY,  UnitClass.WARRIOR,
+        Unit defender = buildUnit("Enemy", Faction.ENEMY, UnitClass.WARRIOR,
                 new Stats(1, 1, 0, 0, 5, 4),   new Position(0, 1), WeaponType.SWORD);
         map.placeUnit(attacker);
         map.placeUnit(defender);
 
         CombatResult result = combatService.resolve(attacker, defender, map);
 
-        assertTrue(result.isDefenderDefeated());
+        assertTrue(result.defenderDefeated());
         assertFalse(defender.isAlive());
     }
 
@@ -103,7 +102,6 @@ class CombatServiceTest {
         assertThrows(IllegalArgumentException.class, () -> combatService.resolve(a, b, map));
     }
 
-    // --- Helpers ---
 
     private BattleMap buildTestMap() {
         BattleMap m = new BattleMap("Test Map", 5, 5);
