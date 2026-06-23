@@ -64,7 +64,7 @@ public enum WeaponType {
                 case AXE -> TriangleRelation.DISADVANTAGE;
                 default -> TriangleRelation.NEUTRAL;
             };
-            // Arco, Magia e Bastone sono neutrali a prescindere
+            // Arco, Magia e Bastone sono neutrali
             case BOW, MAGIC, STAFF -> TriangleRelation.NEUTRAL;
         };
     }

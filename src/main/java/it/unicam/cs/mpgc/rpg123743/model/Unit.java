@@ -28,7 +28,6 @@ public class Unit {
     private final Stats stats;
     private final List<Item> inventory;
 
-    private Weapon equippedWeapon;
     private Position position;
     private boolean hasMovedThisTurn;
     private boolean hasActedThisTurn;
@@ -75,33 +74,45 @@ public class Unit {
     }
 
     /**
-     * Rimuove un oggetto dall'inventario dell'unità.
-     * Se l'oggetto rimosso era l'arma attualmente equipaggiata, l'unità
-     * viene automaticamente disarmata per evitare di mantenere un riferimento
-     * a un'arma che non possiede più.
+     * Rimuove un oggetto dall'inventario dell'unità. Se l'oggetto era un'arma
+     * equipaggiata, lo stato di equipaggiamento viene rimosso insieme all'oggetto
+     * stesso: non serve alcuna sincronizzazione manuale, perché lo stato
+     * "equipaggiata" è tracciato dall'arma stessa (vedi {@link Weapon#isEquipped()}).
      *
      * @param item l'oggetto da rimuovere.
      * @return {@code true} se l'oggetto è stato rimosso, {@code false} se non era presente.
      */
     public boolean removeItem(Item item) {
-        boolean removed = inventory.remove(item);
-        if (removed && item.equals(equippedWeapon)) {
-            this.equippedWeapon = null;
-        }
-        return removed;
+        return inventory.remove(item);
     }
 
     /**
-     * Equipaggia un'arma dall'inventario dell'unità.
-     * L'arma deve essere già presente nell'inventario.
+     * Equipaggia un'arma dall'inventario dell'unità. Garantisce che al massimo
+     * un'arma sia equipaggiata alla volta: se un'altra arma era già equipaggiata,
+     * viene automaticamente disequipaggiata.
      *
-     * @param weapon l'arma da equipaggiare.
+     * @param weapon l'arma da equipaggiare, già presente nell'inventario.
      * @return {@code true} se l'arma è stata equipaggiata, {@code false} se non trovata nell'inventario.
      */
     public boolean equipWeapon(Weapon weapon) {
         if (!inventory.contains(weapon)) return false;
-        this.equippedWeapon = weapon;
+        getEquippedWeapon().ifPresent(current -> current.setEquipped(false));
+        weapon.setEquipped(true);
         return true;
+    }
+
+    /**
+     * Restituisce l'arma attualmente equipaggiata da questa unità, se presente,
+     * cercandola nell'inventario in base al suo stato interno.
+     *
+     * @return un {@link java.util.Optional} contenente l'arma equipaggiata, vuoto se nessuna.
+     */
+    public java.util.Optional<Weapon> getEquippedWeapon() {
+        return inventory.stream()
+                .filter(item -> item instanceof Weapon)
+                .map(item -> (Weapon) item)
+                .filter(Weapon::isEquipped)
+                .findFirst();
     }
 
     /**
@@ -236,9 +247,6 @@ public class Unit {
      * @return le statistiche dell'unità.
      */
     public Stats getStats() { return stats; }
-
-    /** @return l'arma attualmente equipaggiata, o {@code null} se nessuna. */
-    public Weapon getEquippedWeapon() { return equippedWeapon; }
 
     /** @return la posizione corrente sulla griglia. */
     public Position getPosition() { return position; }
