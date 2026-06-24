@@ -48,6 +48,7 @@ public class GameOverController {
     private void updateView() {
         boolean victory = state.getCurrentPhase() == GameState.Phase.VICTORY;
         resultText.setText(victory ? "VICTORY!" : "DEFEAT");
+        resultText.getStyleClass().removeAll("victory-text", "defeat-text");
         resultText.getStyleClass().add(victory ? "victory-text" : "defeat-text");
         turnsLabel.setText("Turns completed: " + state.getTurnNumber());
     }

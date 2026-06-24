@@ -5,40 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8aef90d-08b1-4dd1-814a-5dd1d1399bb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/HealingPotion.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleUIManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/view/MapCellNode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/battle-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/BattleMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/BattleMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Cell.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/CombatResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/CombatResult.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Consumable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Consumable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/GameState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/GameState.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Item.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/MapLevel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/MapLevel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Position.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Position.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Stats.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Stats.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/TerrainType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/TerrainType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Unit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Unit.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/UnitClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/UnitClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Weapon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Weapon.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/WeaponType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/WeaponType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/GameRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/GameRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/ItemTypeAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/ItemTypeAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/JsonGameRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/repository/JsonGameRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/CombatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/CombatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/EnemyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/EnemyService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/MovementService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/MovementService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/SaveService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/SaveService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/TurnService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/TurnService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/WeaponTriangle.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/SceneManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/SceneManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/GameOverController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/GameOverController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/MainMenuController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/util/GameStateFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/util/GameStateFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unicam/cs/mpgc/rpg123743/CombatServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unicam/cs/mpgc/rpg123743/CombatServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/it/unicam/cs/mpgc/rpg123743/WeaponTriangleTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/it/unicam/cs/mpgc/rpg123743/WeaponTriangleTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/battle-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/battle-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/game-over.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/game-over.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

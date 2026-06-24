@@ -6,39 +6,36 @@ import it.unicam.cs.mpgc.rpg123743.service.*;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.BattleController;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.GameOverController;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.MainMenuController;
+import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.LevelSelectionController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Gestisce le transizioni tra le schermate dell'applicazione.
- * Carica i file FXML per le schermate statiche (menu, game over)
- * e costruisce in Java la schermata dinamica di battaglia.
- * Il cablaggio di tutti i service avviene qui.
+ * Gestisce le transizioni tra le schermate dell'applicazione GridWar.
+ * Centralizza l'inizializzazione di tutti i servizi di business (Composition Root)
+ * e inietta le dipendenze necessarie nei rispettivi controller grafici.
  */
 public class SceneManager {
 
     private static final int WIDTH  = 900;
     private static final int HEIGHT = 700;
-
     private final Stage primaryStage;
-
-    private final WeaponTriangle  weaponTriangle;
     private final CombatService   combatService;
     private final MovementService movementService;
     private final TurnService     turnService;
     private final EnemyService    enemyService;
     private final SaveService     saveService;
 
+    /**
+     * Costruisce lo SceneManager e inizializza l'intero stack dei servizi.
+     */
     public SceneManager(Stage primaryStage) {
         this.primaryStage = primaryStage;
-
-        this.weaponTriangle  = new WeaponTriangle();
-        this.combatService   = new CombatService(weaponTriangle);
+        this.combatService   = new CombatService();
         this.movementService = new MovementService();
         this.turnService     = new TurnService();
         this.enemyService    = new EnemyService(movementService, combatService);
@@ -50,67 +47,105 @@ public class SceneManager {
     }
 
     /**
-     * Mostra la schermata del menu principale caricando main-menu.fxml.
+     * Mostra la schermata del menu principale.
      */
     public void showMainMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/it/unicam/cs/mpgc/rpg123743/main-menu.fxml")
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/unicam/cs/mpgc/rpg123743/main-menu.fxml"));
             Parent root = loader.load();
 
             MainMenuController controller = loader.getController();
             controller.init(this, saveService);
 
-            Scene scene = new Scene(root, WIDTH, HEIGHT);
-            applyStylesheet(scene);
-            primaryStage.setScene(scene);
-
+            replaceSceneContent(root, "GridWar — Main Menu");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load main-menu.fxml", e);
         }
     }
 
     /**
-     * Avvia una nuova partita con lo stato fornito e mostra la schermata di battaglia.
-     * La battaglia viene costruita in Java perché la griglia è dinamica.
+     * Mostra la schermata di selezione del livello.
      */
-    public void showBattle(GameState state) {
-        BattleController controller = new BattleController(
-                this, state,
-                combatService, movementService, turnService, enemyService, saveService
-        );
-        Scene scene = new Scene(controller.buildView(), WIDTH, HEIGHT);
-        applyStylesheet(scene);
-        primaryStage.setScene(scene);
+    public void showLevelSelection() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/unicam/cs/mpgc/rpg123743/level-selection.fxml"));
+            Parent root = loader.load();
+
+            LevelSelectionController controller = loader.getController();
+            controller.init(this);
+
+            replaceSceneContent(root, "GridWar — Select Level");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load level-selection.fxml", e);
+        }
     }
 
     /**
-     * Mostra la schermata di fine partita caricando game-over.fxml.
+     * Mostra la schermata di battaglia iniettando lo stato e tutti i servizi nel controller FXML.
+     */
+    public void showBattle(GameState state) {
+        String fxmlPath = "/it/unicam/cs/mpgc/rpg123743/battle-view.fxml";
+        var resource = getClass().getResource(fxmlPath);
+
+        if (resource == null) {
+            throw new RuntimeException("ERRORE CRITICO: Non trovo il file FXML in: " + fxmlPath +
+                    ". Controlla che sia in src/main/resources/it/unicam/cs/mpgc/rpg123743/");
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent root = loader.load();
+
+            BattleController controller = loader.getController();
+            controller.init(this, state, combatService, movementService, turnService, enemyService, saveService);
+
+            replaceSceneContent(root, "GridWar — Battle Zone");
+        } catch (IOException e) {
+            throw new RuntimeException("Errore durante il caricamento di battle-view.fxml", e);
+        }
+    }
+
+    /**
+     * Mostra la schermata di fine partita.
      */
     public void showGameOver(GameState state) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/it/unicam/cs/mpgc/rpg123743/game-over.fxml")
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/unicam/cs/mpgc/rpg123743/game-over.fxml"));
             Parent root = loader.load();
 
             GameOverController controller = loader.getController();
             controller.init(this, state);
 
-            Scene scene = new Scene(root, WIDTH, HEIGHT);
-            applyStylesheet(scene);
-            primaryStage.setScene(scene);
-
+            replaceSceneContent(root, "GridWar — Game Over");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load game-over.fxml", e);
         }
     }
 
+    /**
+     * Utility interna per cambiare il contenuto della scena senza ricreare lo stage,
+     * applicando il foglio di stile globale.
+     */
+    private void replaceSceneContent(Parent root, String title) {
+        Scene scene = primaryStage.getScene();
+        if (scene == null) {
+            scene = new Scene(root, WIDTH, HEIGHT);
+            primaryStage.setScene(scene);
+        } else {
+            scene.setRoot(root);
+        }
+        applyStylesheet(scene);
+        primaryStage.setTitle(title);
+        primaryStage.centerOnScreen();
+        primaryStage.show();
+    }
+
     private void applyStylesheet(Scene scene) {
-        String css = getClass().getResource(
-                "/it/unicam/cs/mpgc/rpg123743/style.css"
-        ).toExternalForm();
-        scene.getStylesheets().add(css);
+        var resource = getClass().getResource("/it/unicam/cs/mpgc/rpg123743/style.css");
+        if (resource != null) {
+            String css = resource.toExternalForm();
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(css);
+        }
     }
 }
