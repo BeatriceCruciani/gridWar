@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
  * incluso il posizionamento delle unità e il recupero delle celle per posizione.
  * Mantiene un registro interno delle unità attive per ottimizzare le prestazioni.
  *
- * <p>Invariante: ogni {@link Unit} registrata in {@code activeUnits} è anche
+ * Invariante: ogni {@link Unit} registrata in {@code activeUnits} è anche
  * occupante della {@link Cell} corrispondente alla sua {@link Position}.
  * L'unico punto di ingresso per modificare questa relazione deve essere
  * questa classe (tramite {@link #placeUnit(Unit)} e {@link #removeUnit(Unit)}),
  * per evitare che le due fonti di verità si desincronizzino.</p>
  *
- * <p><b>Nota sulla persistenza:</b> {@code activeUnits} è marcato {@code transient}
+ * Nota sulla persistenza: {@code activeUnits} è marcato {@code transient}
  * e non viene serializzato da Gson. La griglia ({@code grid}) è l'unica fonte di
  * verità persistita: dopo ogni deserializzazione è necessario invocare
  * {@link #rebuildActiveUnitsRegistry()} per ricostruire il registro a partire
@@ -83,10 +83,6 @@ public class BattleMap {
      * raccogliendo tutte le celle occupate. Deve essere invocato esplicitamente
      * dopo ogni deserializzazione (es. da {@code JsonGameRepository.load()}),
      * dato che Gson non popola i campi {@code transient}.
-     *
-     * <p>Se {@code activeUnits} non è ancora stato inizializzato (caso tipico
-     * subito dopo una deserializzazione, dove Gson bypassa il costruttore),
-     * viene creato qui.</p>
      */
     public void rebuildActiveUnitsRegistry() {
         this.activeUnits = new HashSet<>();
@@ -138,9 +134,14 @@ public class BattleMap {
      * e l'occupante della cella corrispondente.
      *
      * @param unit l'unità da posizionare.
+     * @throws IllegalArgumentException se la cella nella posizione dell'unità non è attraversabile
+     *                                   (es. muro o muro distruttibile ancora intatto).
      */
     public void placeUnit(Unit unit) {
         Cell cell = getCell(unit.getPosition());
+        if (!cell.isPassable()) {
+            throw new IllegalArgumentException("Cannot place unit on an impassable cell: " + unit.getPosition());
+        }
         cell.setOccupant(unit);
         activeUnits.add(unit);
     }

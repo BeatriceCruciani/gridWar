@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.BattleController"
+            styleClass="battle-root">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-bar">
+            <Label fx:id="turnLabel" text="Turn 1 - Player"/>
+            <Button text="Save Game" onAction="#onSave"/>
+            <Button text="Main Menu" onAction="#onMenuClicked"/>
+            <Button text="End Turn" onAction="#onEndTurn"/>
+        </HBox>
+    </top>
+
+    <center>
+        <GridPane fx:id="mapGrid" alignment="CENTER" hgap="2" vgap="2">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </GridPane>
+    </center>
+
+    <right>
+        <VBox spacing="10" styleClass="sidebar">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Unit Info" styleClass="panel-header"/>
+            <VBox fx:id="unitInfoPanel" spacing="5"/>
+            <Separator/>
+            <Label text="Combat Log" styleClass="panel-header"/>
+            <TextArea fx:id="combatLog" editable="false" prefWidth="200" prefHeight="400"/>
+        </VBox>
+    </right>
+
+</BorderPane>

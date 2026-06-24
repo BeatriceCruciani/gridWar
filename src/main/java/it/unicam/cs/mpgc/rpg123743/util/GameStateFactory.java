@@ -25,10 +25,7 @@ public class GameStateFactory {
         };
     }
 
-    // =========================================================
     // MAPPA 1 — Ashborne Plains
-    // =========================================================
-
     private static GameState createAshbornePlains() {
         BattleMap map = new BattleMap("Ashborne Plains", 10, 10);
         for (int r = 0; r < 10; r++)
@@ -64,10 +61,7 @@ public class GameStateFactory {
         placeUnit(map, buildKnight("Dark Knight",   Faction.ENEMY, new Position(0, 9)));
     }
 
-    // =========================================================
     // MAPPA 2 — Fort Siege
-    // =========================================================
-
     private static GameState createFortSiege() {
         BattleMap map = new BattleMap("Fort Siege", 10, 10);
         for (int r = 0; r < 10; r++)
@@ -109,15 +103,14 @@ public class GameStateFactory {
         // Guardie esterne
         placeUnit(map, buildWarrior("Guard",        Faction.ENEMY, new Position(7, 4)));
         placeUnit(map, buildWarrior("Guard",        Faction.ENEMY, new Position(7, 6)));
-        placeUnit(map, buildArcher("Tower Archer",  Faction.ENEMY, new Position(2, 4)));
-        placeUnit(map, buildArcher("Tower Archer",  Faction.ENEMY, new Position(2, 6)));
+        placeUnit(map, buildArcher("Tower Archer",  Faction.ENEMY, new Position(1, 4)));
+        placeUnit(map, buildArcher("Tower Archer",  Faction.ENEMY, new Position(1, 6)));
         // Guardie interne
         placeUnit(map, buildKnight("Fort Knight",   Faction.ENEMY, new Position(4, 4)));
         placeUnit(map, buildKnight("Fort Knight",   Faction.ENEMY, new Position(4, 6)));
         // Comandante
         placeUnit(map, buildWarrior("Commander",    Faction.ENEMY, new Position(3, 5)));
     }
-
 
     // MAPPA 3 — Frozen Pass
     private static GameState createFrozenPass() {
@@ -216,8 +209,9 @@ public class GameStateFactory {
         Weapon dagger = new Weapon("Dagger", "A swift dagger.", 35, WeaponType.SWORD, 3, 1);
         unit.addItem(dagger);
         unit.equipWeapon(dagger);
-        Consumable potion = new Consumable("Vulnerary", "Restores 10 HP.", 3, 10);
+        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
         unit.addItem(potion);
+
         return unit;
     }
 
