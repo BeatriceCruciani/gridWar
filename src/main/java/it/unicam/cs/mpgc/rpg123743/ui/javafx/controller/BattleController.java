@@ -1,13 +1,6 @@
 package it.unicam.cs.mpgc.rpg123743.ui.javafx.controller;
 
-import it.unicam.cs.mpgc.rpg123743.model.BattleMap;
-import it.unicam.cs.mpgc.rpg123743.model.Cell;
-import it.unicam.cs.mpgc.rpg123743.model.CombatResult;
-import it.unicam.cs.mpgc.rpg123743.model.Consumable;
-import it.unicam.cs.mpgc.rpg123743.model.Faction;
-import it.unicam.cs.mpgc.rpg123743.model.GameState;
-import it.unicam.cs.mpgc.rpg123743.model.Position;
-import it.unicam.cs.mpgc.rpg123743.model.Unit;
+import it.unicam.cs.mpgc.rpg123743.model.*;
 import it.unicam.cs.mpgc.rpg123743.service.*;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.SceneManager;
 import javafx.fxml.FXML;
@@ -16,18 +9,12 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-
 import java.util.*;
 
 /**
  * Controller principale di battaglia. Coordina i servizi di gioco
  * (movimento, combattimento, turni, salvataggio) e delega il rendering
  * della vista a {@link BattleUIManager}.
- *
- * <p>Gestisce il flusso di interazione del giocatore tramite click sulla griglia:
- * selezione di un'unità, spostamento, attacco, uso di consumabili e deselezione.
- * Non contiene regole di gioco proprie: ogni decisione (celle raggiungibili,
- * danno, vittoria) è delegata ai rispettivi service.</p>
  */
 public class BattleController {
 
@@ -51,16 +38,6 @@ public class BattleController {
 
     /**
      * Inizializza il controller con lo stato di gioco e i service necessari.
-     * Chiamato da {@code SceneManager} dopo il caricamento dell'FXML.
-     *
-     * @param sm  il gestore delle scene (non nullo).
-     * @param st  lo stato di gioco corrente (non nullo).
-     * @param cs  il service di combattimento (non nullo).
-     * @param ms  il service di movimento (non nullo).
-     * @param ts  il service di gestione turni (non nullo).
-     * @param es  il service dell'AI nemica (non nullo).
-     * @param ss  il service di salvataggio (non nullo).
-     * @throws NullPointerException se uno dei parametri è nullo.
      */
     public void init(SceneManager sm, GameState st, CombatService cs, MovementService ms,
                      TurnService ts, EnemyService es, SaveService ss) {
@@ -72,12 +49,11 @@ public class BattleController {
         this.enemyService = Objects.requireNonNull(es, "EnemyService cannot be null.");
         this.saveService = Objects.requireNonNull(ss, "SaveService cannot be null.");
         this.uiManager = new BattleUIManager(mapGrid, combatLog, unitInfoPanel, turnLabel);
-
         refreshView();
     }
 
     /**
-     * Ridisegna la griglia e l'etichetta del turno in base allo stato corrente.
+     * Ridisegna la griglia e l'etichetta del turno.
      */
     private void refreshView() {
         uiManager.refreshGrid(state.getBattleMap(), reachableCells, attackableCells, selectedUnit, this::onCellClicked);
@@ -85,141 +61,175 @@ public class BattleController {
     }
 
     /**
-     * Gestisce il click su una cella della griglia, implementando il flusso
-     * tipico di selezione/movimento/attacco di un gioco tattico a turni:
-     * <ul>
-     *     <li>se nessuna unità è selezionata, seleziona l'unità del giocatore
-     *     cliccata (se presente, viva e con il turno non ancora concluso);</li>
-     *     <li>se si clicca di nuovo sull'unità selezionata, la deseleziona;</li>
-     *     <li>se si clicca su una cella attaccabile occupata da un nemico vivo,
-     *     risolve il combattimento;</li>
-     *     <li>se si clicca su una cella raggiungibile, sposta l'unità;</li>
-     *     <li>in ogni altro caso, deseleziona.</li>
-     * </ul>
-     *
-     * @param pos la posizione della cella cliccata.
+     * Aggiorna internamente i set di movimento e attacco per l'unità selezionata.
+     */
+    private void updateMovementData() {
+        if (selectedUnit != null) {
+            this.reachableCells = movementService.getReachableCells(selectedUnit, state.getBattleMap());
+            this.attackableCells = movementService.getAttackRange(selectedUnit, state.getBattleMap());
+        }
+    }
+
+    /**
+     * Gestisce il click su una cella della griglia.
      */
     private void onCellClicked(Position pos) {
         BattleMap map = state.getBattleMap();
-
         if (selectedUnit == null) {
             trySelectUnit(map, pos);
             refreshView();
             return;
         }
+        if (pos.equals(selectedUnit.getPosition())) { cancelOrWait(); refreshView(); return; }
 
-        if (pos.equals(selectedUnit.getPosition())) {
-            deselect();
-            refreshView();
-            return;
-        }
-
-        if (attackableCells.contains(pos) && map.getCell(pos).isOccupied()) {
-            tryAttack(map, pos);
-            refreshView();
-            return;
-        }
-
-        if (reachableCells.contains(pos)) {
-            tryMove(map, pos);
-            refreshView();
-            return;
-        }
-
-        deselect();
+        if (attackableCells.contains(pos)) { handleActionTarget(map, pos); }
+        else if (reachableCells.contains(pos)) { tryMove(map, pos); }
+        else { cancelOrWait(); }
         refreshView();
     }
 
     /**
-     * Tenta di selezionare l'unità del giocatore presente nella posizione indicata,
-     * a condizione che sia viva e non abbia già concluso il proprio turno.
+     * Annulla la selezione corrente. Se l'unità si è già mossa in questo turno,
+     * il click viene interpretato come una rinuncia implicita ad agire ulteriormente
+     * (equivalente a premere "Wait"): il turno dell'unità viene concluso definitivamente,
+     * impedendo che venga riselezionata per muoversi di nuovo. Se invece l'unità non
+     * si è ancora mossa, la selezione viene semplicemente annullata senza conseguenze.
+     */
+    private void cancelOrWait() {
+        if (selectedUnit != null && selectedUnit.hasMovedThisTurn()) {
+            onWait();
+        } else {
+            deselect();
+        }
+    }
+
+    /**
+     * Smista l'azione da eseguire su una cella (attacco o cura).
+     */
+    private void handleActionTarget(BattleMap map, Position pos){
+        Cell cell = map.getCell(pos);
+        if (cell.isOccupied()){
+            Unit target = cell.getOccupant();
+            if (target.getFaction() == selectedUnit.getFaction()) tryHeal(target);
+            else tryAttack(map, pos);
+            return;
+        }
+        if (cell.isBreakableWall()){
+            tryAttackWall(cell);
+            return;
+        }
+        cancelOrWait();
+    }
+
+    /**
+     * Seleziona l'unità presente nella cella cliccata, se appartiene al giocatore,
+     * è viva e non ha già concluso il proprio turno. Subito dopo la selezione il
+     * bottone "Wait" non viene mostrato: l'unità deve prima muoversi (o decidere
+     * di restare ferma cliccando di nuovo sulla propria cella) prima di poter
+     * terminare volontariamente il turno.
      */
     private void trySelectUnit(BattleMap map, Position pos) {
         Cell cell = map.getCell(pos);
         if (!cell.isOccupied()) return;
-
         Unit unit = cell.getOccupant();
         if (unit.getFaction() != Faction.PLAYER || !unit.isAlive() || unit.hasFinishedTurn()) return;
-
         selectedUnit = unit;
-        reachableCells = movementService.getReachableCells(unit, map);
-        attackableCells = movementService.getAttackRange(unit, map);
-        uiManager.showUnitInfo(unit, this::onUseItem);
+        updateMovementData();
+        uiManager.showUnitInfo(unit, this::onUseItem, null);
     }
 
     /**
-     * Gestisce l'utilizzo di un consumabile da parte dell'unità attualmente selezionata.
-     * Applica l'effetto del consumabile e segna l'unità come avente compiuto la propria
-     * azione per il turno (usare un oggetto conta come azione, allo stesso modo di un
-     * attacco), poi aggiorna la vista.
-     *
-     * @param consumable il consumabile da utilizzare, già presente nell'inventario
-     *                    dell'unità selezionata.
+     * Gestisce l'utilizzo di un consumabile da parte dell'unità selezionata.
      */
     private void onUseItem(Consumable consumable) {
         if (selectedUnit == null || selectedUnit.hasActedThisTurn()) return;
-
         consumable.useOn(selectedUnit);
         uiManager.log(selectedUnit.getName() + " used " + consumable.getName() + ".");
         selectedUnit.markAsActed();
-
         if (selectedUnit.hasFinishedTurn()) {
             deselect();
         } else {
-            attackableCells = Set.of();
+            updateMovementData();
+            uiManager.showUnitInfo(selectedUnit, this::onUseItem, null);
         }
         refreshView();
     }
 
     /**
-     * Sposta l'unità selezionata nella posizione indicata e ricalcola la
-     * gittata d'attacco dalla nuova posizione, mantenendo l'unità selezionata
-     * per permettere un attacco immediato dopo lo spostamento.
+     * Sposta l'unità selezionata nella posizione indicata. Se il turno non
+     * è ancora concluso dopo il movimento, il pannello informativo viene
+     * aggiornato mostrando anche il bottone "Wait", che permette di terminare
+     * volontariamente il turno senza compiere un'ulteriore azione.
      */
     private void tryMove(BattleMap map, Position pos) {
         movementService.move(selectedUnit, pos, map);
         selectedUnit.markAsMoved();
+        updateMovementData();
+        // L'unità si è già mossa in questo turno: il movimento è bloccato,
+        // anche se può ancora attaccare/curare/usare oggetti dalla nuova posizione.
         reachableCells = Set.of();
-        attackableCells = selectedUnit.hasActedThisTurn()
-                ? Set.of()
-                : movementService.getAttackRange(selectedUnit, map);
         if (selectedUnit.hasFinishedTurn()) {
             deselect();
+        } else {
+            uiManager.showUnitInfo(selectedUnit, this::onUseItem, this::onWait);
         }
     }
 
     /**
-     * Risolve un attacco dell'unità selezionata contro l'unità presente nella
-     * posizione indicata, registra l'esito nel log di combattimento e gestisce
-     * l'eventuale conclusione della partita.
+     * Termina volontariamente il turno dell'unità selezionata senza compiere
+     * un'azione di attacco, cura o utilizzo oggetti.
      */
-    private void tryAttack(BattleMap map, Position pos) {
-        Unit defender = map.getCell(pos).getOccupant();
-        CombatResult result = combatService.resolve(selectedUnit, defender, map);
-        uiManager.log(result.toString());
+    private void onWait() {
+        if (selectedUnit == null) return;
+        uiManager.log(selectedUnit.getName() + " waits.");
+        selectedUnit.markAsActed();
+        deselect();
+        refreshView();
+    }
 
+    private void tryAttack(BattleMap map, Position pos) {
+        CombatResult result = combatService.resolve(selectedUnit, map.getCell(pos).getOccupant(), map);
+        uiManager.log(result.toString());
+        selectedUnit.markAsActed();
         deselect();
         checkEndConditions();
     }
 
+    private void tryHeal(Unit target) {
+        selectedUnit.getEquippedWeapon().ifPresent(w -> {
+            if (w.getWeaponType() == WeaponType.STAFF && target.isAlive()) {
+                target.heal(w.getAttackBonus());
+                w.use();
+                uiManager.log(selectedUnit.getName() + " heals " + target.getName() + ".");
+                selectedUnit.markAsActed();
+                deselect();
+            }
+        });
+    }
+
+    private void tryAttackWall(Cell wallCell) {
+        selectedUnit.getEquippedWeapon().ifPresent(w -> {
+            int damage = selectedUnit.getStats().getAttack() + w.getAttackBonus();
+            boolean destroyed = wallCell.damageWall(damage);
+            w.use();
+            uiManager.log(selectedUnit.getName() + " strikes the wall for " + damage + " damage.");
+            selectedUnit.markAsActed();
+            if (destroyed) updateMovementData();
+            deselect();
+        });
+    }
+
     /**
-     * Deseleziona l'unità corrente e azzera le celle evidenziate.
+     * Deseleziona l'unità corrente, azzera i set di movimento/attacco e
+     * svuota il pannello informativo laterale.
      */
     private void deselect() {
         selectedUnit = null;
         reachableCells = Set.of();
         attackableCells = Set.of();
+        uiManager.clearUnitInfo();
     }
 
-    /**
-     * Verifica le condizioni di vittoria e sconfitta. Se la partita è terminata,
-     * mostra la schermata di fine partita e restituisce {@code true}. Altrimenti,
-     * rimuove dalla mappa le unità sconfitte nel turno corrente e restituisce
-     * {@code false}. Il controllo precede sempre la rimozione, come richiesto
-     * dal contratto di {@link TurnService#checkVictory(GameState)}.
-     *
-     * @return {@code true} se la partita è terminata.
-     */
     private boolean checkEndConditions() {
         if (turnService.checkVictory(state) || turnService.checkDefeat(state)) {
             sceneManager.showGameOver(state);
@@ -229,46 +239,28 @@ public class BattleController {
         return false;
     }
 
-    /**
-     * Termina il turno del giocatore, esegue il turno dell'AI nemica e verifica
-     * le condizioni di fine partita.
-     */
-    @FXML
-    private void onEndTurn() {
+    @FXML private void onEndTurn() {
         deselect();
         turnService.endPlayerTurn(state);
         enemyService.executeTurn(state);
         turnService.endEnemyTurn(state);
-
         if (checkEndConditions()) return;
         refreshView();
     }
 
-    /**
-     * Salva lo stato di gioco corrente, chiedendo preventivamente al giocatore
-     * il nome con cui salvarlo (pre-compilato con il nome attuale). Se l'utente
-     * annulla il dialogo o lascia il nome vuoto, il salvataggio non viene eseguito.
-     */
-    @FXML
-    private void onSave() {
+    @FXML private void onSave() {
         TextInputDialog dialog = new TextInputDialog(state.getSaveName());
         dialog.setTitle("Save Game");
         dialog.setHeaderText(null);
         dialog.setContentText("Save name:");
-
         dialog.showAndWait().ifPresent(name -> {
-            if (name.isBlank()) return;
-            state.setSaveName(name.trim());
-            saveService.save(state);
-            uiManager.log("Game saved as \"" + name.trim() + "\".");
+            if (!name.isBlank()) {
+                state.setSaveName(name.trim());
+                saveService.save(state);
+                uiManager.log("Game saved as \"" + name.trim() + "\".");
+            }
         });
     }
 
-    /**
-     * Torna alla schermata del menu principale.
-     */
-    @FXML
-    private void onMenuClicked() {
-        sceneManager.showMainMenu();
-    }
+    @FXML private void onMenuClicked() { sceneManager.showMainMenu(); }
 }

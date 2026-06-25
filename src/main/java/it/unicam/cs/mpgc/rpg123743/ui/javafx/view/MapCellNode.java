@@ -16,8 +16,13 @@ import java.io.InputStream;
 
 /**
  * Rappresenta il nodo grafico visivo di una singola cella all'interno della griglia di gioco.
- * Estende {@link StackPane} per stratificare il terreno, gli highlight di selezione,
- * le unità e le informazioni strutturali (es. muri distruggibili).
+ * Estende {@link StackPane} per stratificare il terreno, le unità e le informazioni
+ * strutturali (es. muri distruggibili).
+ * <p>
+ * A differenza di un overlay CSS, l'evidenziazione di movimento/attacco viene resa
+ * sostituendo direttamente lo sprite del terreno con la sua variante colorata
+ * (es. {@code plain.png} -> {@code plain-blue.png} per il movimento,
+ * {@code plain-red.png} per l'attacco).
  */
 public class MapCellNode extends StackPane {
 
@@ -35,8 +40,10 @@ public class MapCellNode extends StackPane {
     public MapCellNode(Cell cell, Position pos, boolean isReachable, boolean isAttackable, boolean isSelected) {
         setPrefSize(CELL_SIZE, CELL_SIZE);
         getStyleClass().add("cell");
-        getChildren().add(loadTerrainTile(cell));
-        applyHighlighting(isReachable, isAttackable, isSelected);
+        getChildren().add(loadTerrainTile(cell, isReachable, isAttackable));
+        if (isSelected) {
+            getStyleClass().add("cell-selected");
+        }
         if (cell.isOccupied()) {
             getChildren().add(buildUnitBox(cell.getOccupant()));
         }
@@ -47,24 +54,35 @@ public class MapCellNode extends StackPane {
         }
     }
 
-
     /**
-     * Carica l'immagine corrispondente al tipo di terreno della cella.
-     * In caso di risorsa mancante, applica una classe CSS di fallback.
+     * Carica l'immagine corrispondente al tipo di terreno della cella, scegliendo
+     * la variante colorata se la cella è raggiungibile (blu) o attaccabile (rossa).
+     * Se la variante colorata non esiste come risorsa, si effettua il fallback
+     * sulla texture base del terreno e, in ultima istanza, su uno stile CSS generico.
      *
-     * @param cell La cella da cui ricavare il terreno.
+     * @param cell         La cella da cui ricavare il terreno.
+     * @param isReachable  True se la cella fa parte del raggio di movimento dell'unità selezionata.
+     * @param isAttackable True se la cella fa parte del raggio di attacco dell'unità selezionata.
      * @return Il nodo grafico {@link Node} contenente la texture o il fallback.
      */
-    private Node loadTerrainTile(Cell cell) {
-        String fileName = switch (cell.getTerrainType()) {
-            case PLAIN          -> "plain.png";
-            case FOREST         -> "forest1.png";
-            case MOUNTAIN       -> "mountain.png";
-            case WALL           -> "wall-fort.png";
-            case BREAKABLE_WALL -> "wall-fort-breakable.png";
+    private Node loadTerrainTile(Cell cell, boolean isReachable, boolean isAttackable) {
+        String baseName = switch (cell.getTerrainType()) {
+            case PLAIN          -> "plain";
+            case FOREST         -> "forest";
+            case MOUNTAIN       -> "mountain";
+            case WALL           -> "wall-fort";
+            case BREAKABLE_WALL -> "wall-fort-breakable";
         };
 
+        String suffix = isReachable ? "-blue" : isAttackable ? "-red" : "";
+        String fileName = baseName + suffix + ".png";
+
         InputStream stream = getClass().getResourceAsStream("/it/unicam/cs/mpgc/rpg123743/sprites/terrain/" + fileName);
+
+        // Fallback alla texture base se la variante colorata non è disponibile come risorsa
+        if (stream == null && !suffix.isEmpty()) {
+            stream = getClass().getResourceAsStream("/it/unicam/cs/mpgc/rpg123743/sprites/terrain/" + baseName + ".png");
+        }
 
         if (stream != null) {
             ImageView imageView = new ImageView(new Image(stream));
@@ -74,23 +92,9 @@ public class MapCellNode extends StackPane {
         }
 
         StackPane fallback = new StackPane();
-        fallback.getStyleClass().add("terrain-" + cell.getTerrainType().name().toLowerCase());
+        fallback.getStyleClass().add("terrain-" + cell.getTerrainType().name().toLowerCase() + suffix);
         fallback.setPrefSize(CELL_SIZE, CELL_SIZE);
         return fallback;
-    }
-
-    /**
-     * Applica le classi CSS di overlay grafico in base allo stato della cella.
-     */
-    private void applyHighlighting(boolean isReachable, boolean isAttackable, boolean isSelected) {
-        if (isReachable) {
-            getStyleClass().add("cell-reachable");
-        } else if (isAttackable) {
-            getStyleClass().add("cell-attackable");
-        }
-        if (isSelected) {
-            getStyleClass().add("cell-selected");
-        }
     }
 
     /**
@@ -117,6 +121,9 @@ public class MapCellNode extends StackPane {
     /**
      * Carica lo sprite dell'unità correggendo il percorso delle risorse ed effettuando
      * il mirroring speculare per le unità della fazione del giocatore.
+     *
+     * @param unit L'unità di cui caricare lo sprite.
+     * @return Il nodo grafico {@link Node} contenente lo sprite o il fallback testuale.
      */
     private Node loadUnitSprite(Unit unit) {
         String faction = unit.getFaction() == Faction.PLAYER ? "player" : "enemy";
@@ -150,6 +157,9 @@ public class MapCellNode extends StackPane {
 
     /**
      * Restituisce la stringa di stile inline per colorare dinamicamente la barra degli HP.
+     *
+     * @param hpPercent La percentuale di HP correnti rispetto al massimo, tra 0 e 1.
+     * @return La stringa di stile JavaFX da applicare alla {@link ProgressBar}.
      */
     private String getHpBarColor(double hpPercent) {
         if (hpPercent > 0.5)  return "-fx-accent: #44ff44;";
@@ -159,6 +169,9 @@ public class MapCellNode extends StackPane {
 
     /**
      * Restituisce la sigla testuale dell'unità in caso di mancanza delle texture grafiche.
+     *
+     * @param unit L'unità di cui ricavare la sigla.
+     * @return La sigla testuale corrispondente alla classe dell'unità.
      */
     private String getUnitSymbol(Unit unit) {
         return switch (unit.getUnitClass()) {

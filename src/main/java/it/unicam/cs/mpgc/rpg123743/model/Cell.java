@@ -36,6 +36,9 @@ public class Cell {
      * @return {@code true} se la cella è calpestabile, {@code false} se è un ostacolo.
      */
     public boolean isPassable() {
+        if (this.isBreakableWall()) {
+            return false;
+        }
         return terrainType.isPassable();
     }
 

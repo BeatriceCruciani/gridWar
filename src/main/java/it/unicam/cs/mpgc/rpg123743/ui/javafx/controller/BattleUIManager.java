@@ -16,12 +16,6 @@ import java.util.function.Consumer;
 /**
  * Gestisce esclusivamente la logica di rendering della UI della battaglia.
  * Si occupa di aggiornare la griglia, il log di combattimento e il pannello informativo.
- *
- * <p>Questa classe non contiene alcuna logica di gioco: riceve dati già calcolati
- * (es. celle raggiungibili, unità selezionata) e si limita a tradurli in nodi grafici.
- * L'orchestrazione della logica (movimento, combattimento, turni) è responsabilità
- * del controller che la utilizza (es. {@code BattleController}), mantenendo qui
- * una netta separazione tra presentazione e regole di gioco.</p>
  */
 public class BattleUIManager {
 
@@ -76,15 +70,20 @@ public class BattleUIManager {
 
     /**
      * Aggiorna il pannello laterale con le informazioni dell'unità selezionata,
-     * mostrando nome, fazione, statistiche principali e i consumabili presenti
-     * nell'inventario, ciascuno con un bottone per utilizzarlo immediatamente.
+     * mostrando nome, fazione, statistiche principali, i consumabili presenti
+     * nell'inventario (ciascuno con un bottone per utilizzarlo immediatamente)
+     * e, se richiesto, un bottone "Wait" per terminare volontariamente il turno
+     * dell'unità senza compiere un'azione (es. dopo essersi solo spostata).
      *
      * @param unit       l'unità di cui mostrare le informazioni (non nulla).
      * @param useAction  azione invocata con il consumabile scelto quando il
      *                    giocatore preme il relativo bottone "Use".
+     * @param waitAction azione invocata quando il giocatore preme "Wait",
+     *                    oppure {@code null} se l'opzione non deve essere mostrata.
      */
-    public void showUnitInfo(Unit unit, Consumer<Consumable> useAction) {
+    public void showUnitInfo(Unit unit, Consumer<Consumable> useAction, Runnable waitAction) {
         unitInfoPanel.getChildren().clear();
+
         Label header = new Label(unit.getName());
         header.getStyleClass().add("panel-header");
         Stats s = unit.getStats();
@@ -115,6 +114,21 @@ public class BattleUIManager {
                 unitInfoPanel.getChildren().add(row);
             }
         }
+
+        if (waitAction != null) {
+            Button waitButton = new Button("Wait");
+            waitButton.getStyleClass().add("panel-wait-button");
+            waitButton.setOnAction(e -> waitAction.run());
+            unitInfoPanel.getChildren().add(waitButton);
+        }
+    }
+
+    /**
+     * Svuota il pannello informativo dell'unità, ad esempio quando nessuna
+     * unità è più selezionata.
+     */
+    public void clearUnitInfo() {
+        unitInfoPanel.getChildren().clear();
     }
 
     /**
