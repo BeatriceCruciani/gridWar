@@ -9,13 +9,13 @@ import java.lang.reflect.Type;
  * Salva il nome della classe concreta nel JSON per permettere la corretta
  * deserializzazione degli oggetti astratti (Weapon, HealingPotion, ecc.).
  *
- * <p>Utilizza un'istanza Gson interna "grezza", priva dell'adapter polimorfico
+ * Utilizza un'istanza Gson interna "grezza", priva dell'adapter polimorfico
  * registrato, per serializzare/deserializzare i campi specifici della classe
  * concreta. Questo evita una ricorsione infinita: dato che l'adapter è
  * registrato tramite {@code registerTypeHierarchyAdapter} su tutta la gerarchia
  * di {@code Item}, usare il {@code JsonSerializationContext} principale per
  * serializzare i dettagli richiamerebbe nuovamente questo stesso adapter,
- * causando uno {@link StackOverflowError}.</p>
+ * causando uno {@link StackOverflowError}.
  */
 public class ItemTypeAdapter implements JsonSerializer<Item>, JsonDeserializer<Item> {
 
@@ -40,10 +40,25 @@ public class ItemTypeAdapter implements JsonSerializer<Item>, JsonDeserializer<I
     @Override
     public Item deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-        String className = jsonObject.get(CLASS_META_KEY).getAsString();
+
+        JsonElement typeElement = jsonObject.get(CLASS_META_KEY);
+        if (typeElement == null) {
+            throw new JsonParseException(
+                    "Save file is missing the '" + CLASS_META_KEY + "' metadata for an item. "
+                            + "This usually means the save was created with an older, incompatible "
+                            + "version of GridWar. Delete the old save file and create a new one.");
+        }
+        String className = typeElement.getAsString();
+
+        JsonElement propertiesElement = jsonObject.get(PROPERTIES_KEY);
+        if (propertiesElement == null) {
+            throw new JsonParseException(
+                    "Save file is missing the '" + PROPERTIES_KEY + "' data for item of type " + className + ".");
+        }
+
         try {
             Class<?> clazz = Class.forName(className);
-            return (Item) delegateGson.fromJson(jsonObject.get(PROPERTIES_KEY), clazz);
+            return (Item) delegateGson.fromJson(propertiesElement, clazz);
         } catch (ClassNotFoundException e) {
             throw new JsonParseException("Classe non trovata durante la deserializzazione: " + className, e);
         }

@@ -8,13 +8,13 @@ package it.unicam.cs.mpgc.rpg123743.model;
 public enum MapLevel {
 
     /** Prima mappa — pianura aperta, griglia compatta 8x8, facile. */
-    ASHBORNE_PLAINS("Ashborne Plains", "Open plains, ideal for beginners.", 8, 8, 4),
+    ASHBORNE_PLAINS("Ashborne Plains", "Open plains, defy the enemy units.", 8, 8, 4),
 
     /** Seconda mappa — assedio al forte, griglia media 12x12, difficoltà intermedia. */
-    FORT_SIEGE("Fort Siege", "Assault the walls of a fortified stronghold.", 12, 12, 7),
+    WALL_BREACH("Wall Breach", "Breach the walls of a fortified stronghold to defy the enemy.", 12, 12, 7),
 
     /** Terza mappa — passo montano, griglia ampia 16x16, difficile. */
-    FROZEN_PASS("Frozen Pass", "Narrow icy paths with multiple choke points.", 16, 16, 12);
+    TANGLED_HIGHLANDS("Tangled Higlands", "A mixed terrain map with horde of enemies, use your best strategy to defy the enemy units.", 16, 16, 12);
 
     private final String displayName;
     private final String description;

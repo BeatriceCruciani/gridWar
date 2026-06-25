@@ -1,18 +1,40 @@
+/* =========================================================
+   GridWar — Stylesheet globale
+   Tema: dark fantasy, palette blu notte / rosso corallo / oro
+   ========================================================= */
+
 /* ===== Global ===== */
 .root {
     -fx-font-family: "Segoe UI", Arial, sans-serif;
     -fx-background-color: #1a1a2e;
 }
 
+.label {
+    -fx-text-fill: #c0c0d0;
+}
+
+.button {
+    -fx-cursor: hand;
+    -fx-background-radius: 5;
+    -fx-font-weight: bold;
+}
+
+.button:focused {
+    -fx-background-insets: 0;
+}
+
 /* ===== Main Menu ===== */
 .main-menu {
-    -fx-background-color: #1a1a2e;
+    -fx-background-color: linear-gradient(to bottom, #1a1a2e, #16213e);
+    -fx-alignment: center;
+    -fx-spacing: 18;
 }
 
 .title {
     -fx-font-size: 56px;
     -fx-font-weight: bold;
     -fx-fill: #e94560;
+    -fx-effect: dropshadow(gaussian, rgba(233, 69, 96, 0.45), 18, 0.3, 0, 0);
 }
 
 .subtitle {
@@ -26,25 +48,123 @@
     -fx-font-size: 16px;
     -fx-padding: 12 30 12 30;
     -fx-background-radius: 6;
-    -fx-cursor: hand;
+    -fx-pref-width: 220px;
 }
 
 .menu-button:hover {
     -fx-background-color: #c73652;
 }
 
-/* ===== Battle Screen ===== */
-.battle-screen {
+.menu-button:armed {
+    -fx-background-color: #a92a42;
+    -fx-translate-y: 1;
+}
+
+/* ===== Level Selection ===== */
+.root-pane {
     -fx-background-color: #16213e;
 }
 
-.top-bar {
+.section-title {
+    -fx-text-fill: #ffdd57;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.level-list-panel {
+    -fx-background-color: #0f3460;
+    -fx-background-radius: 8;
+}
+
+.level-list-panel .list-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.level-list-panel .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #c0c0d0;
+    -fx-padding: 10 12 10 12;
+    -fx-font-size: 14px;
+    -fx-background-radius: 4;
+}
+
+.level-list-panel .list-cell:filled:hover {
+    -fx-background-color: #163a6e;
+}
+
+.level-list-panel .list-cell:filled:selected {
+    -fx-background-color: #e94560;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.preview-panel {
+    -fx-background-color: #1a1a2e;
+}
+
+.preview-title {
+    -fx-text-fill: #ffdd57;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.preview-description {
+    -fx-text-fill: #c0c0d0;
+    -fx-font-size: 14px;
+    -fx-max-width: 380px;
+}
+
+.preview-details {
+    -fx-text-fill: #57d9ff;
+    -fx-font-size: 13px;
+    -fx-font-family: "Courier New", monospace;
+}
+
+.button-bar {
+    -fx-background-color: #0f3460;
+}
+
+.button-bar .button {
+    -fx-background-color: #2a2a4a;
+    -fx-text-fill: #e0e0e0;
+    -fx-padding: 8 20 8 20;
+}
+
+.button-bar .button:hover {
+    -fx-background-color: #3a3a5e;
+}
+
+.button-bar .button:default {
+    -fx-background-color: #e94560;
+    -fx-text-fill: white;
+}
+
+.button-bar .button:default:hover {
+    -fx-background-color: #c73652;
+}
+
+.button-bar .button:disabled {
+    -fx-opacity: 0.4;
+}
+
+/* ===== Battle Screen ===== */
+.battle-root {
+    -fx-background-color: #16213e;
+}
+
+.header-bar {
     -fx-background-color: #0f3460;
     -fx-padding: 10;
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+    -fx-border-color: transparent transparent #1a1a2e transparent;
+    -fx-border-width: 0 0 2 0;
 }
 
 .turn-label {
-    -fx-text-fill: #e0e0e0;
+    -fx-text-fill: #ffdd57;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
@@ -55,14 +175,36 @@
     -fx-font-size: 13px;
     -fx-padding: 6 16 6 16;
     -fx-background-radius: 4;
-    -fx-cursor: hand;
 }
 
 .action-button:hover {
     -fx-background-color: #c73652;
 }
 
+.action-button:armed {
+    -fx-background-color: #a92a42;
+}
+
 /* ===== Map Grid ===== */
+.map-scroll {
+    -fx-background-color: #16213e;
+    -fx-background: #16213e;
+}
+
+.map-scroll > .viewport {
+    -fx-background-color: #16213e;
+}
+
+.map-scroll .scroll-bar:horizontal,
+.map-scroll .scroll-bar:vertical {
+    -fx-background-color: #0f3460;
+}
+
+.map-scroll .scroll-bar .thumb {
+    -fx-background-color: #2a2a4a;
+    -fx-background-radius: 4;
+}
+
 .map-grid {
     -fx-background-color: #16213e;
     -fx-hgap: 2;
@@ -88,37 +230,63 @@
 .wall-breakable {
     -fx-text-fill: white;
     -fx-font-size: 11px;
+    -fx-font-weight: bold;
     -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, black, 2, 0.8, 0, 0);
 }
 
-.cell-selected    { -fx-border-color: #ffdd57; -fx-border-width: 3; }
-.cell-reachable   { -fx-background-color: #1a6bb5; }
-.cell-attackable  { -fx-background-color: #8b1a1a; }
+/* Overlay semi-trasparente in stile Fire Emblem, sopra la texture del terreno */
+.highlight-reachable {
+    -fx-background-color: rgba(52, 152, 219, 0.45);
+}
 
-/* ===== Unit labels ===== */
+.highlight-attackable {
+    -fx-background-color: rgba(231, 76, 60, 0.45);
+}
+
+/* Bordo di selezione, disegnato sopra ai figli sul perimetro della cella */
+.cell-selected {
+    -fx-border-color: #ffdd57;
+    -fx-border-width: 3;
+}
+
+/* ===== Unit labels (fallback testuale senza sprite) ===== */
 .unit-player {
     -fx-font-size: 22px;
+    -fx-font-weight: bold;
     -fx-text-fill: #57d9ff;
+    -fx-effect: dropshadow(gaussian, black, 3, 0.6, 0, 0);
 }
 
 .unit-enemy {
     -fx-font-size: 22px;
+    -fx-font-weight: bold;
     -fx-text-fill: #ff6b6b;
+    -fx-effect: dropshadow(gaussian, black, 3, 0.6, 0, 0);
 }
 
 /* ===== Side Panel ===== */
-.side-panel {
+.sidebar {
     -fx-background-color: #0f3460;
-    -fx-padding: 12;
+    -fx-padding: 14;
+    -fx-spacing: 6;
 }
 
 .panel-header {
     -fx-text-fill: #ffdd57;
-    -fx-font-size: 15px;
+    -fx-font-size: 17px;
     -fx-font-weight: bold;
+    -fx-padding: 0 0 4 0;
 }
 
-.side-panel .label {
+.panel-subheader {
+    -fx-text-fill: #ffdd57;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 0 2 0;
+}
+
+.sidebar .label {
     -fx-text-fill: #c0c0d0;
     -fx-font-size: 13px;
 }
@@ -138,27 +306,53 @@
     -fx-padding: 0;
 }
 
+/* Bottone "Use" sulle righe degli oggetti consumabili */
+.sidebar .button {
+    -fx-background-color: #2a2a4a;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 11px;
+    -fx-font-weight: normal;
+    -fx-padding: 3 10 3 10;
+}
+
+.sidebar .button:hover {
+    -fx-background-color: #e94560;
+    -fx-text-fill: white;
+}
+
 /* ===== Combat Log ===== */
 .combat-log {
     -fx-control-inner-background: #0a0a1a;
+    -fx-background-color: #0a0a1a;
     -fx-text-fill: #a0ffa0;
     -fx-font-family: "Courier New", monospace;
     -fx-font-size: 12px;
+    -fx-highlight-fill: #e94560;
+    -fx-highlight-text-fill: white;
+}
+
+.combat-log .scroll-pane,
+.combat-log .viewport {
+    -fx-background-color: #0a0a1a;
 }
 
 /* ===== Game Over ===== */
 .game-over-screen {
-    -fx-background-color: #1a1a2e;
+    -fx-background-color: linear-gradient(to bottom, #1a1a2e, #0f0f1a);
+    -fx-alignment: center;
+    -fx-spacing: 16;
 }
 
 .victory-text {
     -fx-font-size: 64px;
     -fx-font-weight: bold;
     -fx-fill: #57d9ff;
+    -fx-effect: dropshadow(gaussian, rgba(87, 217, 255, 0.5), 22, 0.3, 0, 0);
 }
 
 .defeat-text {
     -fx-font-size: 64px;
     -fx-font-weight: bold;
     -fx-fill: #e94560;
+    -fx-effect: dropshadow(gaussian, rgba(233, 69, 96, 0.5), 22, 0.3, 0, 0);
 }

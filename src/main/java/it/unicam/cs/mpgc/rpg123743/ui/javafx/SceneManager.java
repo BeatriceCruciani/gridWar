@@ -5,8 +5,9 @@ import it.unicam.cs.mpgc.rpg123743.repository.JsonGameRepository;
 import it.unicam.cs.mpgc.rpg123743.service.*;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.BattleController;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.GameOverController;
-import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.MainMenuController;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.LevelSelectionController;
+import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.MainMenuController;
+import it.unicam.cs.mpgc.rpg123743.ui.javafx.controller.SaveSelectionController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,7 +24,10 @@ public class SceneManager {
 
     private static final int WIDTH  = 900;
     private static final int HEIGHT = 700;
+
     private final Stage primaryStage;
+
+    // Servizi centralizzati dell'applicazione
     private final CombatService   combatService;
     private final MovementService movementService;
     private final TurnService     turnService;
@@ -32,9 +36,13 @@ public class SceneManager {
 
     /**
      * Costruisce lo SceneManager e inizializza l'intero stack dei servizi.
+     *
+     * @param primaryStage la finestra principale dell'applicazione.
      */
     public SceneManager(Stage primaryStage) {
         this.primaryStage = primaryStage;
+
+        // Inizializzazione pulita dei servizi di business
         this.combatService   = new CombatService();
         this.movementService = new MovementService();
         this.turnService     = new TurnService();
@@ -55,7 +63,7 @@ public class SceneManager {
             Parent root = loader.load();
 
             MainMenuController controller = loader.getController();
-            controller.init(this, saveService);
+            controller.init(this);
 
             replaceSceneContent(root, "GridWar — Main Menu");
         } catch (IOException e) {
@@ -64,7 +72,7 @@ public class SceneManager {
     }
 
     /**
-     * Mostra la schermata di selezione del livello.
+     * Mostra la schermata di selezione del livello per iniziare una nuova partita.
      */
     public void showLevelSelection() {
         try {
@@ -81,7 +89,27 @@ public class SceneManager {
     }
 
     /**
+     * Mostra la schermata di gestione dei salvataggi, da cui è possibile
+     * caricare o eliminare una partita salvata.
+     */
+    public void showSaveSelection() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/unicam/cs/mpgc/rpg123743/save-selection.fxml"));
+            Parent root = loader.load();
+
+            SaveSelectionController controller = loader.getController();
+            controller.init(this, saveService);
+
+            replaceSceneContent(root, "GridWar — Your Saves");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load save-selection.fxml", e);
+        }
+    }
+
+    /**
      * Mostra la schermata di battaglia iniettando lo stato e tutti i servizi nel controller FXML.
+     *
+     * @param state lo stato di gioco da visualizzare e gestire nella schermata di battaglia.
      */
     public void showBattle(GameState state) {
         String fxmlPath = "/it/unicam/cs/mpgc/rpg123743/battle-view.fxml";
@@ -107,6 +135,8 @@ public class SceneManager {
 
     /**
      * Mostra la schermata di fine partita.
+     *
+     * @param state lo stato finale della partita (vittoria o sconfitta).
      */
     public void showGameOver(GameState state) {
         try {

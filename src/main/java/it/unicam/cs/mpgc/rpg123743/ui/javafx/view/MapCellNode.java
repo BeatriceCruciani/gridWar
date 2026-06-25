@@ -35,25 +35,18 @@ public class MapCellNode extends StackPane {
     public MapCellNode(Cell cell, Position pos, boolean isReachable, boolean isAttackable, boolean isSelected) {
         setPrefSize(CELL_SIZE, CELL_SIZE);
         getStyleClass().add("cell");
-
-        // Strato 1: Il terreno di sfondo
         getChildren().add(loadTerrainTile(cell));
-
-        // Strato 2: Gli effetti grafici di selezione o raggio d'azione
         applyHighlighting(isReachable, isAttackable, isSelected);
-
-        // Strato 3: L'eventuale unità presente sulla cella
         if (cell.isOccupied()) {
             getChildren().add(buildUnitBox(cell.getOccupant()));
         }
-
-        // Strato 4: L'eventuale indicatore per i muri distruggibili
         if (cell.isBreakableWall()) {
             Label wallLabel = new Label("BW\n" + cell.getWallHp());
             wallLabel.getStyleClass().add("wall-breakable");
             getChildren().add(wallLabel);
         }
     }
+
 
     /**
      * Carica l'immagine corrispondente al tipo di terreno della cella.
@@ -66,8 +59,7 @@ public class MapCellNode extends StackPane {
         String fileName = switch (cell.getTerrainType()) {
             case PLAIN          -> "plain.png";
             case FOREST         -> "forest1.png";
-            case MOUNTAIN       -> "wall-fort.png";
-            case FORT           -> "wall-fort-angle.png";
+            case MOUNTAIN       -> "mountain.png";
             case WALL           -> "wall-fort.png";
             case BREAKABLE_WALL -> "wall-fort-breakable.png";
         };

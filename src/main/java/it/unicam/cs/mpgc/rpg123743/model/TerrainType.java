@@ -15,10 +15,7 @@ public enum TerrainType {
 
     /** Montagna — Difficile da attraversare, ottima copertura difensiva. */
     MOUNTAIN(3, 2, 0),
-
-    /** Forte — Posizione fortificata calpestabile; garantisce protezione elevata. */
-    FORT(2, 3, 0),
-
+    
     /** Muro — Struttura permanente non attraversabile da alcuna unità. */
     WALL(-1, 0, 0),
 

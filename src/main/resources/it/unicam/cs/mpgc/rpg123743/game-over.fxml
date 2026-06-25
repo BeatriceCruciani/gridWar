@@ -17,7 +17,7 @@
         <Insets top="60" right="60" bottom="60" left="60"/>
     </padding>
 
-    <Text fx:id="resultText" styleClass="victory-text"/>
+    <Text fx:id="resultText"/>
     <Label fx:id="turnsLabel" styleClass="subtitle"/>
     <Button fx:id="menuBtn" text="Main Menu"
             styleClass="menu-button" prefWidth="200"

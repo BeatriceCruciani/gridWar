@@ -11,32 +11,41 @@
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-bar">
-            <Label fx:id="turnLabel" text="Turn 1 - Player"/>
-            <Button text="Save Game" onAction="#onSave"/>
-            <Button text="Main Menu" onAction="#onMenuClicked"/>
-            <Button text="End Turn" onAction="#onEndTurn"/>
+            <Label fx:id="turnLabel" text="Turn 1 - Player" styleClass="turn-label"/>
+            <Button text="Save Game" onAction="#onSave" styleClass="action-button"/>
+            <Button text="Main Menu" onAction="#onMenuClicked" styleClass="action-button"/>
+            <Button text="End Turn" onAction="#onEndTurn" styleClass="action-button"/>
         </HBox>
     </top>
 
     <center>
-        <GridPane fx:id="mapGrid" alignment="CENTER" hgap="2" vgap="2">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-        </GridPane>
+        <ScrollPane fitToWidth="false" fitToHeight="false" styleClass="map-scroll">
+            <GridPane fx:id="mapGrid" alignment="CENTER" hgap="2" vgap="2" styleClass="map-grid">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+            </GridPane>
+        </ScrollPane>
     </center>
 
     <right>
-        <VBox spacing="10" styleClass="sidebar">
+        <VBox spacing="10" prefWidth="200" styleClass="sidebar">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
             <Label text="Unit Info" styleClass="panel-header"/>
             <VBox fx:id="unitInfoPanel" spacing="5"/>
-            <Separator/>
-            <Label text="Combat Log" styleClass="panel-header"/>
-            <TextArea fx:id="combatLog" editable="false" prefWidth="200" prefHeight="400"/>
         </VBox>
     </right>
+
+    <bottom>
+        <VBox spacing="6" styleClass="combat-log-bar">
+            <padding>
+                <Insets top="8" right="14" bottom="10" left="14"/>
+            </padding>
+            <Label text="Combat Log" styleClass="panel-header"/>
+            <TextArea fx:id="combatLog" editable="false" prefHeight="110" styleClass="combat-log"/>
+        </VBox>
+    </bottom>
 
 </BorderPane>

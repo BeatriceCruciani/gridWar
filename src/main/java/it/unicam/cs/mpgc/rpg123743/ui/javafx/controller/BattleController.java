@@ -13,6 +13,7 @@ import it.unicam.cs.mpgc.rpg123743.ui.javafx.SceneManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -90,9 +91,9 @@ public class BattleController {
      *     <li>se nessuna unità è selezionata, seleziona l'unità del giocatore
      *     cliccata (se presente, viva e con il turno non ancora concluso);</li>
      *     <li>se si clicca di nuovo sull'unità selezionata, la deseleziona;</li>
-     *     <li>se si clicca su una cella raggiungibile, sposta l'unità;</li>
      *     <li>se si clicca su una cella attaccabile occupata da un nemico vivo,
      *     risolve il combattimento;</li>
+     *     <li>se si clicca su una cella raggiungibile, sposta l'unità;</li>
      *     <li>in ogni altro caso, deseleziona.</li>
      * </ul>
      *
@@ -244,11 +245,23 @@ public class BattleController {
     }
 
     /**
-     * Salva lo stato di gioco corrente.
+     * Salva lo stato di gioco corrente, chiedendo preventivamente al giocatore
+     * il nome con cui salvarlo (pre-compilato con il nome attuale). Se l'utente
+     * annulla il dialogo o lascia il nome vuoto, il salvataggio non viene eseguito.
      */
     @FXML
     private void onSave() {
-        saveService.save(state);
+        TextInputDialog dialog = new TextInputDialog(state.getSaveName());
+        dialog.setTitle("Save Game");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Save name:");
+
+        dialog.showAndWait().ifPresent(name -> {
+            if (name.isBlank()) return;
+            state.setSaveName(name.trim());
+            saveService.save(state);
+            uiManager.log("Game saved as \"" + name.trim() + "\".");
+        });
     }
 
     /**
