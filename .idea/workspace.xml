@@ -5,22 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a8aef90d-08b1-4dd1-814a-5dd1d1399bb9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest-blue.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest-red.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/mountain-blue.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/mountain-red.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/plain-blue.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/plain-red.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/wall-fort-breakable-red.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/model/Cell.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/MovementService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/service/MovementService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleUIManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/controller/BattleUIManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/view/MapCellNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/unicam/cs/mpgc/rpg123743/ui/javafx/view/MapCellNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest1.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/forest2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/mountain.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/it/unicam/cs/mpgc/rpg123743/sprites/terrain/mountain.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

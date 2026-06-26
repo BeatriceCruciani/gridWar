@@ -17,8 +17,10 @@ public class MovementService {
 
     /**
      * Sposta un'unità in una nuova posizione sulla mappa previa verifica della sua raggiungibilità.
-     * Sfrutta atomicamente i metodi placeUnit e removeUnit della BattleMap senza richiedere
-     * metodi di spostamento dedicati nella mappa.
+     * La validazione del raggio di movimento è responsabilità di questa classe; l'effettiva
+     * transizione di stato (rimozione dalla cella di origine, aggiornamento della posizione,
+     * occupazione della cella di destinazione) è invece delegata a {@link BattleMap#moveUnit},
+     * che resta l'unico punto della codebase a manipolare direttamente celle e registro interno.
      *
      * @param unit   l'unità da muovere.
      * @param target la posizione di destinazione.
@@ -36,9 +38,7 @@ public class MovementService {
             throw new IllegalArgumentException("Illegal move: position " + target + " is out of range.");
         }
 
-        map.removeUnit(unit);
-        unit.setPosition(target);
-        map.placeUnit(unit);
+        map.moveUnit(unit, target);
     }
 
     /**

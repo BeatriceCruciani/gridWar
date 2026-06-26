@@ -82,10 +82,26 @@ public class BattleController {
         }
         if (pos.equals(selectedUnit.getPosition())) { cancelOrWait(); refreshView(); return; }
 
-        if (attackableCells.contains(pos)) { handleActionTarget(map, pos); }
-        else if (reachableCells.contains(pos)) { tryMove(map, pos); }
-        else { cancelOrWait(); }
+        if (attackableCells.contains(pos) && hasActionTarget(map, pos)) {
+            handleActionTarget(map, pos);
+        } else if (reachableCells.contains(pos)) {
+            tryMove(map, pos);
+        } else {
+            cancelOrWait();
+        }
         refreshView();
+    }
+
+    /**
+     * Restituisce {@code true} se la cella indicata contiene un bersaglio valido
+     * per un'azione (un'unità da attaccare/curare, o un muro distruttibile da
+     * colpire). Una cella puramente vuota nel raggio d'attacco geometrico non
+     * costituisce un bersaglio valido: in quel caso, se la cella è anche
+     * raggiungibile, il click deve essere trattato come un movimento.
+     */
+    private boolean hasActionTarget(BattleMap map, Position pos) {
+        Cell cell = map.getCell(pos);
+        return cell.isOccupied() || cell.isBreakableWall();
     }
 
     /**
@@ -162,7 +178,11 @@ public class BattleController {
      * volontariamente il turno senza compiere un'ulteriore azione.
      */
     private void tryMove(BattleMap map, Position pos) {
-        movementService.move(selectedUnit, pos, map);
+        try {
+            movementService.move(selectedUnit, pos, map);
+        } catch (Exception ex) {
+            return;
+        }
         selectedUnit.markAsMoved();
         updateMovementData();
         // L'unità si è già mossa in questo turno: il movimento è bloccato,
