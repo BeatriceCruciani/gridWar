@@ -214,7 +214,7 @@ public class BattleMap {
             int newRow = position.getRow() + delta[0];
             int newCol = position.getCol() + delta[1];
             if (newRow < 0 || newCol < 0) {
-                continue; // Position non accetta indici negativi: skippiamo senza lanciare eccezioni.
+                continue;
             }
             Position nextPos = new Position(newRow, newCol);
             if (isInBounds(nextPos)) {

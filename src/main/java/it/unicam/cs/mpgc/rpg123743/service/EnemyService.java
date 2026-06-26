@@ -62,7 +62,7 @@ public class EnemyService {
         }
 
         // Attacca se (dopo l'eventuale movimento) si trova in gittata
-        // NOTA: canAttack verifica internamente anche la presenza dell'arma
+        // canAttack verifica internamente anche la presenza dell'arma
         if (canAttack(enemy, target)) {
             combatService.resolve(enemy, target, map);
         }

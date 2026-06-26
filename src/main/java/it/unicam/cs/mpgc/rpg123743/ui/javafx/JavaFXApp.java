@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 public class JavaFXApp extends Application {
 
     /**
-     * Metodo principale di JavaFX — viene chiamato automaticamente all'avvio.
+     * Metodo principale di JavaFX viene chiamato automaticamente all'avvio.
      * Configura la finestra principale e mostra il menu principale.
      *
      * @param primaryStage la finestra principale dell'applicazione.

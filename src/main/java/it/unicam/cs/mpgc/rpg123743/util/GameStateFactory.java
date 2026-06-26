@@ -9,7 +9,7 @@ import it.unicam.cs.mpgc.rpg123743.model.*;
  */
 public class GameStateFactory {
 
-    private GameStateFactory() { /* classe di utilità */ }
+    private GameStateFactory() {}
 
     /**
      * Crea e restituisce lo stato di gioco per il livello specificato.
@@ -135,11 +135,11 @@ public class GameStateFactory {
         placeUnit(map, buildWarrior("Scout",        Faction.ENEMY, new Position(1, 5)));
         placeUnit(map, buildArcher("Sniper",        Faction.ENEMY, new Position(1, 7)));
         placeUnit(map, buildArcher("Sniper",        Faction.ENEMY, new Position(1, 8)));
-        placeUnit(map, buildKnight("Ice Knight",    Faction.ENEMY, new Position(3, 0)));
-        placeUnit(map, buildKnight("Ice Knight",    Faction.ENEMY, new Position(3, 2)));
-        placeUnit(map, buildKnight("Ice Knight",    Faction.ENEMY, new Position(3, 8)));
-        placeUnit(map, buildMage("Frost Mage",      Faction.ENEMY, new Position(3, 4)));
-        placeUnit(map, buildMage("Frost Mage",      Faction.ENEMY, new Position(3, 6)));
+        placeUnit(map, buildKnight("Knight",    Faction.ENEMY, new Position(3, 0)));
+        placeUnit(map, buildKnight("Knight",    Faction.ENEMY, new Position(3, 2)));
+        placeUnit(map, buildKnight("Knight",    Faction.ENEMY, new Position(3, 8)));
+        placeUnit(map, buildMage("Mage",      Faction.ENEMY, new Position(3, 4)));
+        placeUnit(map, buildMage("Mage",      Faction.ENEMY, new Position(3, 6)));
         placeUnit(map, buildWarrior("Elite Guard",  Faction.ENEMY, new Position(0, 2)));
         placeUnit(map, buildWarrior("Elite Guard",  Faction.ENEMY, new Position(0, 5)));
         placeUnit(map, buildArcher("Elite Archer",  Faction.ENEMY, new Position(0, 7)));
@@ -155,6 +155,8 @@ public class GameStateFactory {
         Weapon sword = new Weapon("Iron Sword", "A sturdy iron sword.", 30, WeaponType.SWORD, 5, 1);
         unit.addItem(sword);
         unit.equipWeapon(sword);
+        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
+        unit.addItem(potion);
         return unit;
     }
 
@@ -186,6 +188,8 @@ public class GameStateFactory {
         Weapon lance = new Weapon("Iron Lance", "A heavy iron lance.", 30, WeaponType.LANCE, 5, 1);
         unit.addItem(lance);
         unit.equipWeapon(lance);
+        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
+        unit.addItem(potion);
         return unit;
     }
 

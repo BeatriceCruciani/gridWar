@@ -116,8 +116,8 @@ public class SceneManager {
         var resource = getClass().getResource(fxmlPath);
 
         if (resource == null) {
-            throw new RuntimeException("ERRORE CRITICO: Non trovo il file FXML in: " + fxmlPath +
-                    ". Controlla che sia in src/main/resources/it/unicam/cs/mpgc/rpg123743/");
+            throw new RuntimeException("CRITICAL ERROR: Could not find the FXML file at: " + fxmlPath +
+                    ". Verify that it exists in src/main/resources/it/unicam/cs/mpgc/rpg123743/");
         }
 
         try {
@@ -129,7 +129,7 @@ public class SceneManager {
 
             replaceSceneContent(root, "GridWar — Battle Zone");
         } catch (IOException e) {
-            throw new RuntimeException("Errore durante il caricamento di battle-view.fxml", e);
+            throw new RuntimeException("Error occurred while loading battle-view.fxml", e);
         }
     }
 

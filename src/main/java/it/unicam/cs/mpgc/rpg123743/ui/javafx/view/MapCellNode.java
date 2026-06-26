@@ -136,7 +136,6 @@ public class MapCellNode extends StackPane {
             case HEALER -> "healer-" + faction + ".png";
         };
 
-        // FIX: Sostituiti i punti originari con le barre per il package path corretto delle risorse
         InputStream stream = getClass().getResourceAsStream("/it/unicam/cs/mpgc/rpg123743/sprites/units/" + fileName);
 
         if (stream != null) {
@@ -145,7 +144,7 @@ public class MapCellNode extends StackPane {
             imageView.setFitHeight(CELL_SIZE - 16);
             imageView.setPreserveRatio(true);
             if (unit.getFaction() == Faction.PLAYER) {
-                imageView.setScaleX(-1); // Specchia l'unità verso destra per il Player
+                imageView.setScaleX(-1);
             }
             return imageView;
         }

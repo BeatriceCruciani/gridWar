@@ -21,9 +21,7 @@ public class CombatService {
      * Essendo le regole del triangolo integrate direttamente nell'enum WeaponType del modello,
      * questo servizio è ora completamente autonomo e privo di dipendenze esterne.
      */
-    public CombatService() {
-        // Costruttore vuoto e pulito
-    }
+    public CombatService() {}
 
     /**
      * Risolve uno scambio di combattimento completo tra un attaccante e un difensore sulla mappa.
@@ -43,14 +41,14 @@ public class CombatService {
         Weapon attackerWeapon = attacker.getEquippedWeapon()
                 .orElseThrow(() -> new IllegalStateException("Attacker must have a weapon equipped at this point."));
 
-        // --- 1. FASE OFFENSIVA: L'attaccante colpisce ---
+        //FASE OFFENSIVA: L'attaccante colpisce
         int damageDealt = calculateDamage(attacker, defender, map);
         defender.takeDamage(damageDealt);
-        attackerWeapon.use(); // Consuma la durabilità/usi dell'arma dell'attaccante
+        attackerWeapon.use();
 
         boolean defenderDefeated = !defender.isAlive();
 
-        // --- 2. FASE DIFENSIVA: Il difensore contrattacca (se idoneo) ---
+        //FASE DIFENSIVA: Il difensore contrattacca
         int damageReceived  = 0;
         boolean attackerDefeated = false;
 
@@ -63,7 +61,7 @@ public class CombatService {
             attackerDefeated = !attacker.isAlive();
         }
 
-        // --- 3. FASE PREMIAZIONE: Calcolo e assegnazione dell'esperienza ---
+        //Calcolo e assegnazione dell'esperienza
         int expGained  = defenderDefeated ? EXP_FOR_KILL : EXP_FOR_ATTACK;
         boolean levelledUp = attacker.gainExperience(expGained);
 
@@ -128,19 +126,19 @@ public class CombatService {
 
         Weapon attackerWeapon = attacker.getEquippedWeapon()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "L'attaccante '" + attacker.getName() + "' non ha armi equipaggiate."));
+                        "Attacker " + attacker.getName() + " does not have an equipped weapon."));
 
         if (!attacker.isAlive() || !defender.isAlive()) {
-            throw new IllegalArgumentException("Impossibile avviare uno scontro se uno dei partecipanti è già sconfitto.");
+            throw new IllegalArgumentException("Cannot initiate combat if one of the participants is already defeated.");
         }
         if (!attacker.isEnemy(defender)) {
-            throw new IllegalArgumentException("Fuoco amico non consentito: le unità appartengono alla stessa fazione.");
+            throw new IllegalArgumentException("Friendly fire is not allowed: units belong to the same faction.");
         }
 
         int distance = attacker.getPosition().distanceTo(defender.getPosition());
         if (attackerWeapon.getRange() < distance) {
-            throw new IllegalArgumentException("Attacco non valido: il difensore si trova fuori dalla gittata dell'arma ("
-                    + distance + " caselle di distanza contro un range massimo di " + attackerWeapon.getRange() + ").");
+            throw new IllegalArgumentException("Invalid attack: the defender is out of range ("
+                    + distance + " tiles away against a maximum range of " + attackerWeapon.getRange() + ").");
         }
     }
 }

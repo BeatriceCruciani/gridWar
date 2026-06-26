@@ -11,10 +11,10 @@ import java.util.Objects;
  * una posizione sulla griglia e un inventario di oggetti limitato.
  * Ogni turno un'unità può muoversi una volta e compiere un'azione una volta.
  *
- * <p>Questa classe è l'unico punto d'ingresso per modificare gli HP dell'unità
+ * Questa classe è l'unico punto d'ingresso per modificare gli HP dell'unità
  * (tramite {@link #heal(int)} e {@link #takeDamage(int)}): {@link Stats} resta
  * un contenitore di dati senza conoscenza delle regole di gioco (es. permadeath).
- * {@link #getStats()} è da considerarsi accesso in sola lettura.</p>
+ * {@link #getStats()} è da considerarsi accesso in sola lettura.
  */
 public class Unit {
 

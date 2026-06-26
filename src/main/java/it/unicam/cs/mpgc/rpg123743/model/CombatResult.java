@@ -45,10 +45,10 @@ public record CombatResult(
 
     @Override
     public String toString() {
-        return attacker.getName() + " ha inflitto " + damageDealt + " danni a " + defender.getName()
-                + (defenderDefeated ? " [SCONFITTO]" : "")
-                + " | danni ricevuti: " + damageReceived
-                + (attackerDefeated ? " [ATTACCANTE SCONFITTO]" : "")
+        return attacker.getName() + " dealt " + damageDealt + " damage to " + defender.getName()
+                + (defenderDefeated ? " [DEFEATED]" : "")
+                + " | damage received: " + damageReceived
+                + (attackerDefeated ? " [ATTACKER DEFEATED]" : "")
                 + (attackerLevelledUp ? " | LEVEL UP!" : "");
     }
 }

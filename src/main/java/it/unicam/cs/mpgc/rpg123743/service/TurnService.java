@@ -15,9 +15,7 @@ public class TurnService {
     /**
      * Costruttore stateless autonomo.
      */
-    public TurnService() {
-        // Costruttore vuoto pulito, in linea con gli altri Service
-    }
+    public TurnService() {}
 
     /**
      * Termina il turno del giocatore e inizia il turno del nemico.
@@ -61,7 +59,6 @@ public class TurnService {
 
         List<Unit> enemies = state.getBattleMap().getUnitsByFaction(Faction.ENEMY);
 
-        // Se non ci sono mai stati nemici, evitiamo un falso positivo (lista vuota = nessun nemico mai esistito).
         boolean victory = !enemies.isEmpty() && enemies.stream().noneMatch(Unit::isAlive);
 
         if (victory) {
@@ -83,8 +80,6 @@ public class TurnService {
         Objects.requireNonNull(state, "GameState cannot be null during defeat check.");
 
         List<Unit> players = state.getBattleMap().getUnitsByFaction(Faction.PLAYER);
-
-        // Struttura speculare a checkVictory per prevenire bug di liste vuote a seguito della rimozione dei corpi
         boolean defeat = !players.isEmpty() && players.stream().noneMatch(Unit::isAlive);
 
         if (defeat) {
@@ -107,8 +102,6 @@ public class TurnService {
                 .stream()
                 .filter(Unit::isAlive)
                 .toList();
-
-        // Se non ci sono giocatori vivi, non ha senso dire che hanno "finito il turno" con successo
         if (activePlayers.isEmpty()) return false;
 
         return activePlayers.stream().allMatch(Unit::hasFinishedTurn);
