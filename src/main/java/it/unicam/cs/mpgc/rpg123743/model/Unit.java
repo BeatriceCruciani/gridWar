@@ -20,7 +20,7 @@ public class Unit {
 
     private static final int MAX_INVENTORY_SIZE = 3;
     private static final int MAX_LEVEL = 20;
-    private static final int EXPERIENCE_PER_LEVEL = 100;
+    private static final int EXPERIENCE_PER_LEVEL = 50;
 
     private final String name;
     private final Faction faction;
@@ -139,12 +139,19 @@ public class Unit {
     public void markAsActed() { this.hasActedThisTurn = true; }
 
     /**
-     * Restituisce {@code true} se l'unità ha completato sia il movimento sia l'azione in questo turno.
+     * Restituisce {@code true} se il turno dell'unità è da considerarsi concluso.
+     * Compiere un'azione (attaccare, curare, usare un oggetto o aspettare) chiude
+     * sempre il turno, indipendentemente dal fatto che l'unità si sia mossa prima
+     * o no: ci si può quindi muovere e poi agire, oppure agire direttamente dalla
+     * propria posizione di partenza senza mai muoversi — in entrambi i casi il
+     * turno termina nello stesso momento in cui l'azione viene compiuta.
+     * Il solo movimento, senza una successiva azione o un esplicito Wait, non
+     * è invece sufficiente a concludere il turno.
      *
-     * @return {@code true} se il turno dell'unità è concluso.
+     * @return {@code true} se l'unità ha già compiuto un'azione in questo turno.
      */
     public boolean hasFinishedTurn() {
-        return hasMovedThisTurn && hasActedThisTurn;
+        return hasActedThisTurn;
     }
 
     /**

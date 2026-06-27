@@ -85,7 +85,6 @@ public class EnemyService {
                         b.distanceTo(target.getPosition())
                 ));
 
-        // Deleghiamo lo spostamento sicuro al MovementService
         bestPosition.ifPresent(pos -> movementService.move(enemy, pos, map));
     }
 

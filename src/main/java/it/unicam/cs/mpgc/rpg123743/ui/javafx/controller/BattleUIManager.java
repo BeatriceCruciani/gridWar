@@ -89,6 +89,7 @@ public class BattleUIManager {
         Stats s = unit.getStats();
         unitInfoPanel.getChildren().addAll(header,
                 new Label(unit.getFaction() == Faction.PLAYER ? "[Player]" : "[Enemy]"),
+                new Label("Lv. " + unit.getLevel() + " (XP: " + unit.getExperience() + ")"),
                 new Label("HP: " + s.getCurrentHp() + "/" + s.getMaxHp()),
                 new Label("ATK: " + s.getAttack()),
                 new Label("DEF: " + s.getDefence()),

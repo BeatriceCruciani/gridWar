@@ -120,7 +120,9 @@ public class BattleController {
     }
 
     /**
-     * Smista l'azione da eseguire su una cella (attacco o cura).
+     * Smista l'azione da eseguire su una cella che contiene un bersaglio valido
+     * (verificato a monte da {@link #hasActionTarget}): un'unità da attaccare
+     * o curare, oppure un muro distruttibile da colpire.
      */
     private void handleActionTarget(BattleMap map, Position pos){
         Cell cell = map.getCell(pos);
@@ -130,11 +132,7 @@ public class BattleController {
             else tryAttack(map, pos);
             return;
         }
-        if (cell.isBreakableWall()){
-            tryAttackWall(cell);
-            return;
-        }
-        cancelOrWait();
+        tryAttackWall(cell);
     }
 
     /**
@@ -207,10 +205,14 @@ public class BattleController {
         refreshView();
     }
 
+    /**
+     * Risolve l'attacco dell'unità selezionata contro il difensore indicato.
+     * Non chiama esplicitamente {@code markAsActed()}: {@link CombatService#resolve}
+     * lo fa già internamente sull'attaccante, una sola volta.
+     */
     private void tryAttack(BattleMap map, Position pos) {
         CombatResult result = combatService.resolve(selectedUnit, map.getCell(pos).getOccupant(), map);
         uiManager.log(result.toString());
-        selectedUnit.markAsActed();
         deselect();
         checkEndConditions();
     }

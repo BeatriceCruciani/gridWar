@@ -12,8 +12,8 @@ import java.util.Optional;
  */
 public class CombatService {
 
-    private static final int EXP_FOR_ATTACK = 10;
-    private static final int EXP_FOR_KILL   = 40;
+    private static final int EXP_FOR_ATTACK = 15;
+    private static final int EXP_FOR_KILL   = 50;
     private static final int MIN_DAMAGE     = 0;
 
     /**
