@@ -65,7 +65,7 @@ public class SceneManager {
             MainMenuController controller = loader.getController();
             controller.init(this);
 
-            replaceSceneContent(root, "GridWar — Main Menu");
+            replaceSceneContent(root, "GridWar - Main Menu");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load main-menu.fxml", e);
         }
@@ -82,7 +82,7 @@ public class SceneManager {
             LevelSelectionController controller = loader.getController();
             controller.init(this);
 
-            replaceSceneContent(root, "GridWar — Select Level");
+            replaceSceneContent(root, "GridWar - Select Level");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load level-selection.fxml", e);
         }
@@ -100,7 +100,7 @@ public class SceneManager {
             SaveSelectionController controller = loader.getController();
             controller.init(this, saveService);
 
-            replaceSceneContent(root, "GridWar — Your Saves");
+            replaceSceneContent(root, "GridWar - Your Saves");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load save-selection.fxml", e);
         }
@@ -127,7 +127,7 @@ public class SceneManager {
             BattleController controller = loader.getController();
             controller.init(this, state, combatService, movementService, turnService, enemyService, saveService);
 
-            replaceSceneContent(root, "GridWar — Battle Zone");
+            replaceSceneContent(root, "GridWar - Battle Zone");
         } catch (IOException e) {
             throw new RuntimeException("Error occurred while loading battle-view.fxml", e);
         }
@@ -146,7 +146,7 @@ public class SceneManager {
             GameOverController controller = loader.getController();
             controller.init(this, state);
 
-            replaceSceneContent(root, "GridWar — Game Over");
+            replaceSceneContent(root, "GridWar - Game Over");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load game-over.fxml", e);
         }
