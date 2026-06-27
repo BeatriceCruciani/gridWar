@@ -26,21 +26,17 @@ public class HealingPotion extends Consumable {
     }
 
     /**
-     * Implementazione dell'effetto specifico: cura l'unità bersaglio del valore stabilito.
+     * Cura l'unità bersaglio del valore stabilito.
      *
      * @param target l'unità da curare.
      */
     @Override
     protected void applyEffect(Unit target) {
-        // Assume che l'unità abbia un metodo per ricevere cure (es. heal)
         target.heal(healAmount);
     }
 
     /**
-     * Restituisce la quantità di HP ripristinata da questo oggetto.
-     * * @return i punti vita ripristinati per singolo utilizzo.
+     * @return i punti vita ripristinati per singolo utilizzo.
      */
-    public int getHealAmount() {
-        return healAmount;
-    }
+    public int getHealAmount() { return healAmount; }
 }

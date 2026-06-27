@@ -1,5 +1,6 @@
 package it.unicam.cs.mpgc.rpg123743.ui.javafx.controller;
 
+import it.unicam.cs.mpgc.rpg123743.model.Faction;
 import it.unicam.cs.mpgc.rpg123743.model.GameState;
 import it.unicam.cs.mpgc.rpg123743.model.MapLevel;
 import it.unicam.cs.mpgc.rpg123743.ui.javafx.SceneManager;
@@ -19,29 +20,18 @@ import java.util.Objects;
  */
 public class LevelSelectionController {
 
-    @FXML
-    private ListView<MapLevel> levelListView;
-
-    @FXML
-    private Label previewTitle;
-
-    @FXML
-    private Label previewDescription;
-
-    @FXML
-    private Label previewDetails;
-
-    @FXML
-    private Button startButton;
+    @FXML private ListView<MapLevel> levelListView;
+    @FXML private Label previewTitle;
+    @FXML private Label previewDescription;
+    @FXML private Label previewDetails;
+    @FXML private Button startButton;
 
     private SceneManager sceneManager;
 
     /**
      * Costruttore senza argomenti richiesto da FXMLLoader.
      */
-    public LevelSelectionController() {
-        // Lasciato vuoto intenzionalmente per JavaFX
-    }
+    public LevelSelectionController() {}
 
     /**
      * Inizializza il controller con il gestore delle scene.
@@ -69,10 +59,8 @@ public class LevelSelectionController {
                 setText(empty || level == null ? null : level.getDisplayName());
             }
         });
-
         levelListView.getSelectionModel().selectedItemProperty()
                 .addListener((obs, oldLevel, newLevel) -> updatePreview(newLevel));
-
         startButton.setDisable(true);
     }
 
@@ -87,8 +75,9 @@ public class LevelSelectionController {
 
     /**
      * Aggiorna il pannello di anteprima con i metadati del livello selezionato.
-     * Se nessun livello è selezionato, il pannello viene svuotato e il bottone
-     * di avvio disabilitato.
+     * Il numero di nemici è calcolato costruendo temporaneamente lo stato di gioco
+     * e interrogando la mappa: in questo modo il valore è sempre coerente con le
+     * unità effettivamente piazzate, senza dati hardcoded in {@link MapLevel}.
      *
      * @param level il livello attualmente selezionato, o {@code null} se nessuno.
      */
@@ -100,10 +89,15 @@ public class LevelSelectionController {
             startButton.setDisable(true);
             return;
         }
+        int enemyCount = GameStateFactory.createGame(level)
+                .getBattleMap()
+                .getUnitsByFaction(Faction.ENEMY)
+                .size();
+
         previewTitle.setText(level.getDisplayName());
         previewDescription.setText(level.getDescription());
         previewDetails.setText(String.format("Size: %d x %d   |   Enemies: %d",
-                level.getWidth(), level.getHeight(), level.getEnemyCount()));
+                level.getWidth(), level.getHeight(), enemyCount));
         startButton.setDisable(false);
     }
 
@@ -116,7 +110,6 @@ public class LevelSelectionController {
     private void onStart() {
         MapLevel selected = levelListView.getSelectionModel().getSelectedItem();
         if (selected == null) return;
-
         GameState state = GameStateFactory.createGame(selected);
         sceneManager.showBattle(state);
     }

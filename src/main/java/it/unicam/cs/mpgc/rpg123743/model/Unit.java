@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Rappresenta un'unità sulla mappa di battaglia in stile Fire Emblem.
@@ -11,15 +12,15 @@ import java.util.Objects;
  * una posizione sulla griglia e un inventario di oggetti limitato.
  * Ogni turno un'unità può muoversi una volta e compiere un'azione una volta.
  *
- * Questa classe è l'unico punto d'ingresso per modificare gli HP dell'unità
+ * <p>Questa classe è l'unico punto d'ingresso per modificare gli HP dell'unità
  * (tramite {@link #heal(int)} e {@link #takeDamage(int)}): {@link Stats} resta
  * un contenitore di dati senza conoscenza delle regole di gioco (es. permadeath).
- * {@link #getStats()} è da considerarsi accesso in sola lettura.
+ * {@link #getStats()} è da considerarsi accesso in sola lettura.</p>
  */
 public class Unit {
 
-    private static final int MAX_INVENTORY_SIZE = 3;
-    private static final int MAX_LEVEL = 20;
+    private static final int MAX_INVENTORY_SIZE  = 3;
+    private static final int MAX_LEVEL           = 20;
     private static final int EXPERIENCE_PER_LEVEL = 50;
 
     private final String name;
@@ -49,16 +50,16 @@ public class Unit {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Unit name must not be blank.");
         }
-        this.name = name;
-        this.faction = Objects.requireNonNull(faction, "Faction must not be null.");
-        this.unitClass = Objects.requireNonNull(unitClass, "Unit class must not be null.");
-        this.stats = Objects.requireNonNull(stats, "Stats must not be null.");
-        this.position = Objects.requireNonNull(position, "Position must not be null.");
-        this.inventory = new ArrayList<>();
-        this.hasMovedThisTurn = false;
-        this.hasActedThisTurn = false;
-        this.level = 1;
-        this.experience = 0;
+        this.name      = name;
+        this.faction   = Objects.requireNonNull(faction,    "Faction must not be null.");
+        this.unitClass = Objects.requireNonNull(unitClass,  "Unit class must not be null.");
+        this.stats     = Objects.requireNonNull(stats,      "Stats must not be null.");
+        this.position  = Objects.requireNonNull(position,   "Position must not be null.");
+        this.inventory         = new ArrayList<>();
+        this.hasMovedThisTurn  = false;
+        this.hasActedThisTurn  = false;
+        this.level             = 1;
+        this.experience        = 0;
     }
 
     /**
@@ -92,7 +93,7 @@ public class Unit {
      * viene automaticamente disequipaggiata.
      *
      * @param weapon l'arma da equipaggiare, già presente nell'inventario.
-     * @return {@code true} se l'arma è stata equipaggiata, {@code false} se non trovata nell'inventario.
+     * @return {@code true} se l'arma è stata equipaggiata, {@code false} se non trovata.
      */
     public boolean equipWeapon(Weapon weapon) {
         if (!inventory.contains(weapon)) return false;
@@ -102,12 +103,11 @@ public class Unit {
     }
 
     /**
-     * Restituisce l'arma attualmente equipaggiata da questa unità, se presente,
-     * cercandola nell'inventario in base al suo stato interno.
+     * Restituisce l'arma attualmente equipaggiata da questa unità, se presente.
      *
-     * @return un {@link java.util.Optional} contenente l'arma equipaggiata, vuoto se nessuna.
+     * @return un {@link Optional} contenente l'arma equipaggiata, vuoto se nessuna.
      */
-    public java.util.Optional<Weapon> getEquippedWeapon() {
+    public Optional<Weapon> getEquippedWeapon() {
         return inventory.stream()
                 .filter(item -> item instanceof Weapon)
                 .map(item -> (Weapon) item)
@@ -140,43 +140,32 @@ public class Unit {
 
     /**
      * Restituisce {@code true} se il turno dell'unità è da considerarsi concluso.
-     * Compiere un'azione (attaccare, curare, usare un oggetto o aspettare) chiude
-     * sempre il turno, indipendentemente dal fatto che l'unità si sia mossa prima
-     * o no: ci si può quindi muovere e poi agire, oppure agire direttamente dalla
-     * propria posizione di partenza senza mai muoversi — in entrambi i casi il
-     * turno termina nello stesso momento in cui l'azione viene compiuta.
-     * Il solo movimento, senza una successiva azione o un esplicito Wait, non
-     * è invece sufficiente a concludere il turno.
+     * Compiere un'azione chiude sempre il turno, indipendentemente dal fatto che
+     * l'unità si sia mossa prima o no. Il solo movimento senza una successiva
+     * azione o un esplicito Wait non è sufficiente a concludere il turno.
      *
      * @return {@code true} se l'unità ha già compiuto un'azione in questo turno.
      */
-    public boolean hasFinishedTurn() {
-        return hasActedThisTurn;
-    }
+    public boolean hasFinishedTurn() { return hasActedThisTurn; }
 
     /**
-     * Ripristina una quantità specificata di punti vita (HP) all'unità.
+     * Ripristina una quantità specificata di punti vita all'unità.
      * Non ha effetto se l'unità è già stata sconfitta (permadeath).
-     * La logica di calcolo del tetto massimo è delegata a {@link Stats}.
      *
      * @param amount la quantità di HP da ripristinare (deve essere positiva).
-     * @throws IllegalArgumentException se amount è minore o uguale a zero.
+     * @throws IllegalArgumentException se amount non è positivo.
      */
     public void heal(int amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Heal amount must be positive. Got: " + amount);
         }
-        if (!isAlive()) {
-            return; // Permadeath: le unità a 0 HP non possono essere curate
-        }
+        if (!isAlive()) return;
         this.stats.heal(amount);
     }
 
     /**
-     * Applica danno all'unità. Questo è l'unico punto d'ingresso previsto per
-     * infliggere danno: centralizza qui eventuali future regole di gioco legate
-     * al danno (es. invulnerabilità temporanea, danno riflesso, trigger di eventi),
-     * evitando che il combat system manipoli {@link Stats} direttamente.
+     * Applica danno all'unità. Punto d'ingresso unico per infliggere danno,
+     * che centralizza eventuali future regole di gioco legate al danno.
      *
      * @param amount la quantità di danno da applicare (deve essere non negativa).
      * @throws IllegalArgumentException se amount è negativo.
@@ -189,9 +178,9 @@ public class Unit {
     }
 
     /**
-     * Aggiunge esperienza all'unità. Se vengono raggiunte una o più soglie di livello
-     * in un'unica chiamata (es. grandi quantità di esperienza), l'unità sale di
-     * più livelli consecutivamente, fino al livello massimo {@value MAX_LEVEL}.
+     * Aggiunge esperienza all'unità. Se vengono raggiunte più soglie di livello
+     * in un'unica chiamata, l'unità sale di più livelli consecutivamente,
+     * fino al livello massimo {@value MAX_LEVEL}.
      *
      * @param amount la quantità di esperienza da aggiungere.
      * @return {@code true} se l'unità ha guadagnato almeno un livello.
@@ -203,18 +192,10 @@ public class Unit {
         while (this.experience >= EXPERIENCE_PER_LEVEL && level < MAX_LEVEL) {
             this.experience -= EXPERIENCE_PER_LEVEL;
             this.level++;
-            applyLevelUpBonus();
+            this.unitClass.applyLevelUp(this.stats);
             leveledUp = true;
         }
         return leveledUp;
-    }
-
-    /**
-     * Applica i bonus statistici al level up delegando la responsabilità a {@link UnitClass}.
-     * Questo approccio rispetta il principio Open/Closed (OCP), rimuovendo switch rigidi.
-     */
-    private void applyLevelUpBonus() {
-        this.unitClass.applyLevelUp(this.stats);
     }
 
     /**
@@ -222,9 +203,7 @@ public class Unit {
      *
      * @return {@code true} se l'unità è ancora in vita.
      */
-    public boolean isAlive() {
-        return !stats.isDead();
-    }
+    public boolean isAlive() { return !stats.isDead(); }
 
     /**
      * Restituisce {@code true} se l'unità specificata appartiene a una fazione avversaria.
@@ -232,9 +211,7 @@ public class Unit {
      * @param other l'altra unità da verificare.
      * @return {@code true} se è un nemico.
      */
-    public boolean isEnemy(Unit other) {
-        return this.faction != other.faction;
-    }
+    public boolean isEnemy(Unit other) { return this.faction != other.faction; }
 
     /** @return il nome dell'unità. */
     public String getName() { return name; }
@@ -248,8 +225,7 @@ public class Unit {
     /**
      * Restituisce le statistiche dell'unità. Da considerarsi accesso in sola
      * lettura: per modificare gli HP usare esclusivamente {@link #heal(int)}
-     * e {@link #takeDamage(int)}, che applicano le regole di gioco (es. permadeath)
-     * prima di delegare a {@link Stats}.
+     * e {@link #takeDamage(int)}.
      *
      * @return le statistiche dell'unità.
      */
@@ -274,11 +250,9 @@ public class Unit {
      * Aggiorna la posizione dell'unità sulla griglia.
      *
      * @param position la nuova posizione (non nulla).
-     * @throws IllegalArgumentException se position è nulla.
      */
     public void setPosition(Position position) {
-        if (position == null) throw new IllegalArgumentException("Position must not be null.");
-        this.position = position;
+        this.position = Objects.requireNonNull(position, "Position must not be null.");
     }
 
     @Override

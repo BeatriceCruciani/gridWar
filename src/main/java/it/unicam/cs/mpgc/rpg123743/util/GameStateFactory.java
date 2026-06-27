@@ -3,227 +3,160 @@ package it.unicam.cs.mpgc.rpg123743.util;
 import it.unicam.cs.mpgc.rpg123743.model.*;
 
 /**
- * Factory che costruisce lo stato iniziale del gioco per ogni livello.
- * Centralizza tutti i dati di mappa e unità in un unico posto.
- * In una release futura i dati potrebbero essere caricati da file JSON esterni.
+ * Costruisce lo stato iniziale del gioco per ogni livello di mappa.
+ * Le dimensioni della griglia sono lette da {@link MapLevel} (unica fonte di verità).
+ * La creazione delle unità è delegata a {@link UnitFactory}.
  */
-public class GameStateFactory {
+public final class GameStateFactory {
 
     private GameStateFactory() {}
 
     /**
-     * Crea e restituisce lo stato di gioco per il livello specificato.
+     * Crea e restituisce lo stato di gioco iniziale per il livello specificato.
      *
      * @param level il livello da caricare.
-     * @return il GameState iniziale pronto per essere usato.
+     * @return il {@link GameState} iniziale pronto per essere usato.
      */
     public static GameState createGame(MapLevel level) {
         return switch (level) {
-            case ASHBORNE_PLAINS -> createAshbornePlains();
-            case WALL_BREACH      -> createWallBreach();
-            case TANGLED_HIGHLANDS     -> createTangledHiglands();
+            case ASHBORNE_PLAINS   -> createAshbornePlains(level);
+            case WALL_BREACH       -> createWallBreach(level);
+            case TANGLED_HIGHLANDS -> createTangledHighlands(level);
         };
     }
 
-    // MAPPA 1 — Ashborne Plains
-    private static GameState createAshbornePlains() {
-        BattleMap map = new BattleMap("Ashborne Plains", 10, 10);
-        for (int r = 0; r < 10; r++)
-            for (int c = 0; c < 10; c++)
-                map.setCell(new Cell(new Position(r, c), ashborneTerrain(r, c)));
+    // Livello 1 — Ashborne Plains (8x8)
+    private static GameState createAshbornePlains(MapLevel level) {
+        BattleMap map = buildMap(level);
+        placeAshborneUnits(map);
+        return new GameState("autosave " + level.getDisplayName(), map);
+    }
 
-        GameState state = new GameState("autosave Ashborne Plains", map);
-        placeAshbornePlayerUnits(map);
-        placeAshborneEnemyUnits(map);
-        return state;
+    private static void placeAshborneUnits(BattleMap map) {
+        map.placeUnit(UnitFactory.warrior("Lucina", Faction.PLAYER, new Position(6, 0)));
+        map.placeUnit(UnitFactory.mage   ("Robin",  Faction.PLAYER, new Position(7, 1)));
+        map.placeUnit(UnitFactory.archer ("Niles",  Faction.PLAYER, new Position(6, 2)));
+        map.placeUnit(UnitFactory.knight ("Xander", Faction.PLAYER, new Position(7, 0)));
+        map.placeUnit(UnitFactory.thief  ("Anna",   Faction.PLAYER, new Position(5, 1)));
+        map.placeUnit(UnitFactory.healer ("Lissa",  Faction.PLAYER, new Position(7, 2)));
+        map.placeUnit(UnitFactory.warrior("Dark Soldier", Faction.ENEMY, new Position(1, 7)));
+        map.placeUnit(UnitFactory.archer ("Dark Archer",  Faction.ENEMY, new Position(0, 5)));
+        map.placeUnit(UnitFactory.mage   ("Dark Mage",    Faction.ENEMY, new Position(1, 6)));
+        map.placeUnit(UnitFactory.knight ("Dark Knight",  Faction.ENEMY, new Position(0, 7)));
     }
 
     private static TerrainType ashborneTerrain(int r, int c) {
-        if (r <= 3 && c >= 6) return TerrainType.FOREST;
-        if (r >= 7 && c <= 2) return TerrainType.MOUNTAIN;
+        if (r <= 2 && c >= 5) return TerrainType.FOREST;
+        if (r >= 5 && c <= 2) return TerrainType.MOUNTAIN;
         return TerrainType.PLAIN;
     }
 
-    private static void placeAshbornePlayerUnits(BattleMap map) {
-        placeUnit(map, buildWarrior("Lucina", Faction.PLAYER, new Position(8, 0)));
-        placeUnit(map, buildMage("Robin",     Faction.PLAYER, new Position(9, 1)));
-        placeUnit(map, buildArcher("Niles",  Faction.PLAYER, new Position(8, 2)));
-        placeUnit(map, buildKnight("Xander", Faction.PLAYER, new Position(9, 0)));
-        placeUnit(map, buildThief("Anna",  Faction.PLAYER, new Position(7, 1)));
-        placeUnit(map, buildHealer("Lissa",  Faction.PLAYER, new Position(9, 2)));
+    // Livello 2 — Wall Breach (12x12)
+    private static GameState createWallBreach(MapLevel level) {
+        BattleMap map = buildMap(level);
+        placeWallBreachUnits(map);
+        return new GameState("autosave " + level.getDisplayName(), map);
     }
 
-    private static void placeAshborneEnemyUnits(BattleMap map) {
-        placeUnit(map, buildWarrior("Dark Soldier", Faction.ENEMY, new Position(1, 9)));
-        placeUnit(map, buildArcher("Dark Archer",   Faction.ENEMY, new Position(0, 7)));
-        placeUnit(map, buildMage("Dark Mage",       Faction.ENEMY, new Position(1, 8)));
-        placeUnit(map, buildKnight("Dark Knight",   Faction.ENEMY, new Position(0, 9)));
-    }
-
-    // MAPPA 2 — Wall Breach
-    private static GameState createWallBreach() {
-        BattleMap map = new BattleMap("Wall Breach", 10, 10);
-        for (int r = 0; r < 10; r++)
-            for (int c = 0; c < 10; c++)
-                map.setCell(new Cell(new Position(r, c), wallBreachTerrain(r, c)));
-
-        GameState state = new GameState("autosave Wall Breach", map);
-        placeWallBreachPlayerUnits(map);
-        placeWallBreachEnemyUnits(map);
-        return state;
+    private static void placeWallBreachUnits(BattleMap map) {
+        map.placeUnit(UnitFactory.warrior("Lucina", Faction.PLAYER, new Position(9, 4)));
+        map.placeUnit(UnitFactory.mage   ("Robin",  Faction.PLAYER, new Position(9, 7)));
+        map.placeUnit(UnitFactory.archer ("Niles",  Faction.PLAYER, new Position(10, 5)));
+        map.placeUnit(UnitFactory.knight ("Xander", Faction.PLAYER, new Position(9, 5)));
+        map.placeUnit(UnitFactory.thief  ("Anna",   Faction.PLAYER, new Position(10, 6)));
+        map.placeUnit(UnitFactory.healer ("Lissa",  Faction.PLAYER, new Position(10, 7)));
+        map.placeUnit(UnitFactory.warrior("Guard",        Faction.ENEMY, new Position(5, 4)));
+        map.placeUnit(UnitFactory.warrior("Guard",        Faction.ENEMY, new Position(5, 7)));
+        map.placeUnit(UnitFactory.archer ("Tower Archer", Faction.ENEMY, new Position(3, 4)));
+        map.placeUnit(UnitFactory.archer ("Tower Archer", Faction.ENEMY, new Position(3, 7)));
+        map.placeUnit(UnitFactory.knight ("Fort Knight",  Faction.ENEMY, new Position(4, 5)));
+        map.placeUnit(UnitFactory.knight ("Fort Knight",  Faction.ENEMY, new Position(4, 6)));
+        map.placeUnit(UnitFactory.warrior("Commander",    Faction.ENEMY, new Position(2, 6)));
     }
 
     private static TerrainType wallBreachTerrain(int r, int c) {
-        if (c == 0 || c == 9) return TerrainType.MOUNTAIN;
-        if (r == 5) {
-            if (c == 3 || c == 6) return TerrainType.BREAKABLE_WALL;
+        if (c == 0 || c == 11)    return TerrainType.MOUNTAIN;
+        if (r == 6) {
+            if (c == 4 || c == 7) return TerrainType.BREAKABLE_WALL;
             return TerrainType.WALL;
         }
         return TerrainType.PLAIN;
     }
 
-    private static void placeWallBreachPlayerUnits(BattleMap map) {
-        placeUnit(map, buildWarrior("Lucina", Faction.PLAYER, new Position(8, 3)));
-        placeUnit(map, buildMage("Robin",     Faction.PLAYER, new Position(8, 6)));
-        placeUnit(map, buildArcher("Niles",  Faction.PLAYER, new Position(9, 4)));
-        placeUnit(map, buildKnight("Xander", Faction.PLAYER, new Position(8, 4)));
-        placeUnit(map, buildThief("Anna",  Faction.PLAYER, new Position(9, 5)));
-        placeUnit(map, buildHealer("Lissa",  Faction.PLAYER, new Position(9, 6)));
+    // Livello 3 — Tangled Highlands (16x16)
+    private static GameState createTangledHighlands(MapLevel level) {
+        BattleMap map = buildMap(level);
+        placeTangledHighlandsUnits(map);
+        return new GameState("autosave " + level.getDisplayName(), map);
     }
 
-    private static void placeWallBreachEnemyUnits(BattleMap map) {
-        placeUnit(map, buildWarrior("Guard",        Faction.ENEMY, new Position(4, 3)));
-        placeUnit(map, buildWarrior("Guard",        Faction.ENEMY, new Position(4, 6)));
-        placeUnit(map, buildArcher("Tower Archer",  Faction.ENEMY, new Position(2, 3)));
-        placeUnit(map, buildArcher("Tower Archer",  Faction.ENEMY, new Position(2, 6)));
-        placeUnit(map, buildKnight("Fort Knight",   Faction.ENEMY, new Position(3, 4)));
-        placeUnit(map, buildKnight("Fort Knight",   Faction.ENEMY, new Position(3, 5)));
-        placeUnit(map, buildWarrior("Commander",    Faction.ENEMY, new Position(1, 5)));
+    private static void placeTangledHighlandsUnits(BattleMap map) {
+        map.placeUnit(UnitFactory.warrior("Lucina", Faction.PLAYER, new Position(15, 1)));
+        map.placeUnit(UnitFactory.mage   ("Robin",  Faction.PLAYER, new Position(15, 4)));
+        map.placeUnit(UnitFactory.archer ("Niles",  Faction.PLAYER, new Position(15, 7)));
+        map.placeUnit(UnitFactory.knight ("Xander", Faction.PLAYER, new Position(15, 10)));
+        map.placeUnit(UnitFactory.thief  ("Anna",   Faction.PLAYER, new Position(15, 13)));
+        map.placeUnit(UnitFactory.healer ("Lissa",  Faction.PLAYER, new Position(15, 15)));
+        map.placeUnit(UnitFactory.warrior("Scout",        Faction.ENEMY, new Position(1, 1)));
+        map.placeUnit(UnitFactory.warrior("Scout",        Faction.ENEMY, new Position(1, 5)));
+        map.placeUnit(UnitFactory.warrior("Scout",        Faction.ENEMY, new Position(1, 9)));
+        map.placeUnit(UnitFactory.archer ("Sniper",       Faction.ENEMY, new Position(1, 12)));
+        map.placeUnit(UnitFactory.archer ("Sniper",       Faction.ENEMY, new Position(1, 14)));
+        map.placeUnit(UnitFactory.knight ("Knight",       Faction.ENEMY, new Position(4, 1)));
+        map.placeUnit(UnitFactory.knight ("Knight",       Faction.ENEMY, new Position(4, 7)));
+        map.placeUnit(UnitFactory.knight ("Knight",       Faction.ENEMY, new Position(4, 14)));
+        map.placeUnit(UnitFactory.mage   ("Mage",         Faction.ENEMY, new Position(4, 4)));
+        map.placeUnit(UnitFactory.mage   ("Mage",         Faction.ENEMY, new Position(4, 10)));
+        map.placeUnit(UnitFactory.warrior("Elite Guard",  Faction.ENEMY, new Position(0, 3)));
+        map.placeUnit(UnitFactory.warrior("Elite Guard",  Faction.ENEMY, new Position(0, 11)));
+        map.placeUnit(UnitFactory.archer ("Elite Archer", Faction.ENEMY, new Position(0, 8)));
+        map.placeUnit(UnitFactory.thief  ("Shadow",       Faction.ENEMY, new Position(3, 6)));
+        map.placeUnit(UnitFactory.thief  ("Shadow",       Faction.ENEMY, new Position(3, 13)));
+        map.placeUnit(UnitFactory.knight ("Warlord",      Faction.ENEMY, new Position(0, 6)));
     }
 
-    // MAPPA 3 — tangled Highlands
-    private static GameState createTangledHiglands() {
-        BattleMap map = new BattleMap("Tangled Higlands", 10, 10);
-        for (int r = 0; r < 10; r++)
-            for (int c = 0; c < 10; c++)
-                map.setCell(new Cell(new Position(r, c), TangledHiglandsTerrain(r, c)));
-
-        GameState state = new GameState("autosave Tangled Higlands", map);
-        placeTangledHiglandsPlayerUnits(map);
-        placeTangledHiglandsEnemyUnits(map);
-        return state;
-    }
-
-    private static TerrainType TangledHiglandsTerrain(int r, int c) {
-        if ((r + c) % 5 == 0) return TerrainType.FOREST;
+    private static TerrainType tangledHighlandsTerrain(int r, int c) {
+        if ((r + c) % 5 == 0)     return TerrainType.FOREST;
         if ((2 * r + c) % 7 == 0) return TerrainType.MOUNTAIN;
         return TerrainType.PLAIN;
     }
 
-    private static void placeTangledHiglandsPlayerUnits(BattleMap map) {
-        placeUnit(map, buildWarrior("Lucina", Faction.PLAYER, new Position(9, 1)));
-        placeUnit(map, buildMage("Robin",     Faction.PLAYER, new Position(9, 3)));
-        placeUnit(map, buildArcher("Niles",  Faction.PLAYER, new Position(9, 5)));
-        placeUnit(map, buildKnight("Xander", Faction.PLAYER, new Position(9, 7)));
-        placeUnit(map, buildThief("Anna",  Faction.PLAYER, new Position(9, 8)));
-        placeUnit(map, buildHealer("Lissa",  Faction.PLAYER, new Position(9, 4)));
-    }
-
-    private static void placeTangledHiglandsEnemyUnits(BattleMap map) {
-        placeUnit(map, buildWarrior("Scout",        Faction.ENEMY, new Position(1, 1)));
-        placeUnit(map, buildWarrior("Scout",        Faction.ENEMY, new Position(1, 3)));
-        placeUnit(map, buildWarrior("Scout",        Faction.ENEMY, new Position(1, 5)));
-        placeUnit(map, buildArcher("Sniper",        Faction.ENEMY, new Position(1, 7)));
-        placeUnit(map, buildArcher("Sniper",        Faction.ENEMY, new Position(1, 8)));
-        placeUnit(map, buildKnight("Knight",    Faction.ENEMY, new Position(3, 0)));
-        placeUnit(map, buildKnight("Knight",    Faction.ENEMY, new Position(3, 2)));
-        placeUnit(map, buildKnight("Knight",    Faction.ENEMY, new Position(3, 8)));
-        placeUnit(map, buildMage("Mage",      Faction.ENEMY, new Position(3, 4)));
-        placeUnit(map, buildMage("Mage",      Faction.ENEMY, new Position(3, 6)));
-        placeUnit(map, buildWarrior("Elite Guard",  Faction.ENEMY, new Position(0, 2)));
-        placeUnit(map, buildWarrior("Elite Guard",  Faction.ENEMY, new Position(0, 5)));
-        placeUnit(map, buildArcher("Elite Archer",  Faction.ENEMY, new Position(0, 7)));
-        placeUnit(map, buildThief("Shadow",         Faction.ENEMY, new Position(2, 4)));
-        placeUnit(map, buildThief("Shadow",         Faction.ENEMY, new Position(2, 9)));
-        placeUnit(map, buildKnight("Warlord",       Faction.ENEMY, new Position(0, 4)));
-    }
-
-    // Builder delle unità
-    private static Unit buildWarrior(String name, Faction faction, Position pos) {
-        Stats stats = new Stats(30, 12, 8, 3, 6, 3);
-        Unit unit = new Unit(name, faction, UnitClass.WARRIOR, stats, pos);
-        Weapon sword = new Weapon("Iron Sword", "A sturdy iron sword.", 30, WeaponType.SWORD, 5, 1);
-        unit.addItem(sword);
-        unit.equipWeapon(sword);
-        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
-        unit.addItem(potion);
-        return unit;
-    }
-
-    private static Unit buildMage(String name, Faction faction, Position pos) {
-        Stats stats = new Stats(20, 14, 3, 8, 8, 4);
-        Unit unit = new Unit(name, faction, UnitClass.MAGE, stats, pos);
-        Weapon tome = new Weapon("Fire Tome", "A basic fire tome.", 25, WeaponType.MAGIC, 6, 2);
-        unit.addItem(tome);
-        unit.equipWeapon(tome);
-        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
-        unit.addItem(potion);
-        return unit;
-    }
-
-    private static Unit buildArcher(String name, Faction faction, Position pos) {
-        Stats stats = new Stats(22, 11, 5, 4, 9, 4);
-        Unit unit = new Unit(name, faction, UnitClass.ARCHER, stats, pos);
-        Weapon bow = new Weapon("Iron Bow", "A reliable bow.", 30, WeaponType.BOW, 5, 2);
-        unit.addItem(bow);
-        unit.equipWeapon(bow);
-        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
-        unit.addItem(potion);
-        return unit;
-    }
-
-    private static Unit buildKnight(String name, Faction faction, Position pos) {
-        Stats stats = new Stats(28, 10, 12, 4, 5, 5);
-        Unit unit = new Unit(name, faction, UnitClass.KNIGHT, stats, pos);
-        Weapon lance = new Weapon("Iron Lance", "A heavy iron lance.", 30, WeaponType.LANCE, 5, 1);
-        unit.addItem(lance);
-        unit.equipWeapon(lance);
-        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
-        unit.addItem(potion);
-        return unit;
-    }
-
-    private static Unit buildThief(String name, Faction faction, Position pos) {
-        Stats stats = new Stats(18, 9, 4, 4, 13, 6);
-        Unit unit = new Unit(name, faction, UnitClass.THIEF, stats, pos);
-        Weapon dagger = new Weapon("Dagger", "A swift dagger.", 35, WeaponType.SWORD, 3, 1);
-        unit.addItem(dagger);
-        unit.equipWeapon(dagger);
-        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
-        unit.addItem(potion);
-
-        return unit;
+    /**
+     * Costruisce una {@link BattleMap} per il livello indicato, popolando
+     * ogni cella con il terreno appropriato tramite la strategia specifica del livello.
+     *
+     * @param level il livello di cui costruire la mappa.
+     * @return la mappa con tutte le celle inizializzate.
+     */
+    private static BattleMap buildMap(MapLevel level) {
+        BattleMap map = new BattleMap(level.getDisplayName(), level.getHeight(), level.getWidth());
+        TerrainStrategy terrain = terrainStrategyFor(level);
+        for (int r = 0; r < level.getHeight(); r++)
+            for (int c = 0; c < level.getWidth(); c++)
+                map.setCell(new Cell(new Position(r, c), terrain.terrainAt(r, c)));
+        return map;
     }
 
     /**
-     * Costruisce un'unità Healer, dedicata al supporto del gruppo.
-     * Statistiche orientate a resistenza magica e velocità, con difesa fisica
-     * e attacco contenuti. È equipaggiata con un bastone, usato da
-     * {@code BattleController} per curare un alleato a distanza invece di
-     * infliggere danno (vedi {@link WeaponType#STAFF}).
+     * Interfaccia funzionale che astrae la logica di generazione del terreno,
+     * permettendo a {@link #buildMap} di essere indipendente dal livello specifico.
      */
-    private static Unit buildHealer(String name, Faction faction, Position pos) {
-        Stats stats = new Stats(20, 8, 2, 9, 7, 5);
-        Unit unit = new Unit(name, faction, UnitClass.HEALER, stats, pos);
-        Weapon staff = new Weapon("Healing Staff", "A staff imbued with restorative magic.", 30, WeaponType.STAFF, 8, 2);
-        unit.addItem(staff);
-        unit.equipWeapon(staff);
-        Consumable potion = new HealingPotion("Vulnerary", "Restores 10 HP.", 3, 10);
-        unit.addItem(potion);
-        return unit;
+    @FunctionalInterface
+    private interface TerrainStrategy {
+        TerrainType terrainAt(int r, int c);
     }
 
-    private static void placeUnit(BattleMap map, Unit unit) {
-        map.placeUnit(unit);
+    /**
+     * Restituisce la {@link TerrainStrategy} appropriata per il livello indicato.
+     *
+     * @param level il livello di cui ottenere la strategia.
+     * @return la strategia di generazione del terreno.
+     */
+    private static TerrainStrategy terrainStrategyFor(MapLevel level) {
+        return switch (level) {
+            case ASHBORNE_PLAINS   -> GameStateFactory::ashborneTerrain;
+            case WALL_BREACH       -> GameStateFactory::wallBreachTerrain;
+            case TANGLED_HIGHLANDS -> GameStateFactory::tangledHighlandsTerrain;
+        };
     }
 }

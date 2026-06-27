@@ -28,7 +28,7 @@ public class BattleController {
 
     private BattleUIManager uiManager;
     private Unit selectedUnit;
-    private Set<Position> reachableCells = new HashSet<>();
+    private Set<Position> reachableCells  = new HashSet<>();
     private Set<Position> attackableCells = new HashSet<>();
 
     @FXML private GridPane mapGrid;
@@ -41,13 +41,13 @@ public class BattleController {
      */
     public void init(SceneManager sm, GameState st, CombatService cs, MovementService ms,
                      TurnService ts, EnemyService es, SaveService ss) {
-        this.sceneManager = Objects.requireNonNull(sm, "SceneManager cannot be null.");
-        this.state = Objects.requireNonNull(st, "GameState cannot be null.");
-        this.combatService = Objects.requireNonNull(cs, "CombatService cannot be null.");
+        this.sceneManager    = Objects.requireNonNull(sm, "SceneManager cannot be null.");
+        this.state           = Objects.requireNonNull(st, "GameState cannot be null.");
+        this.combatService   = Objects.requireNonNull(cs, "CombatService cannot be null.");
         this.movementService = Objects.requireNonNull(ms, "MovementService cannot be null.");
-        this.turnService = Objects.requireNonNull(ts, "TurnService cannot be null.");
-        this.enemyService = Objects.requireNonNull(es, "EnemyService cannot be null.");
-        this.saveService = Objects.requireNonNull(ss, "SaveService cannot be null.");
+        this.turnService     = Objects.requireNonNull(ts, "TurnService cannot be null.");
+        this.enemyService    = Objects.requireNonNull(es, "EnemyService cannot be null.");
+        this.saveService     = Objects.requireNonNull(ss, "SaveService cannot be null.");
         this.uiManager = new BattleUIManager(mapGrid, combatLog, unitInfoPanel, turnLabel);
         refreshView();
     }
@@ -61,11 +61,11 @@ public class BattleController {
     }
 
     /**
-     * Aggiorna internamente i set di movimento e attacco per l'unità selezionata.
+     * Aggiorna i set di movimento e attacco per l'unità selezionata.
      */
     private void updateMovementData() {
         if (selectedUnit != null) {
-            this.reachableCells = movementService.getReachableCells(selectedUnit, state.getBattleMap());
+            this.reachableCells  = movementService.getReachableCells(selectedUnit, state.getBattleMap());
             this.attackableCells = movementService.getAttackRange(selectedUnit, state.getBattleMap());
         }
     }
@@ -80,8 +80,11 @@ public class BattleController {
             refreshView();
             return;
         }
-        if (pos.equals(selectedUnit.getPosition())) { cancelOrWait(); refreshView(); return; }
-
+        if (pos.equals(selectedUnit.getPosition())) {
+            cancelOrWait();
+            refreshView();
+            return;
+        }
         if (attackableCells.contains(pos) && hasActionTarget(map, pos)) {
             handleActionTarget(map, pos);
         } else if (reachableCells.contains(pos)) {
@@ -94,10 +97,10 @@ public class BattleController {
 
     /**
      * Restituisce {@code true} se la cella indicata contiene un bersaglio valido
-     * per un'azione (un'unità da attaccare/curare, o un muro distruttibile da
-     * colpire). Una cella puramente vuota nel raggio d'attacco geometrico non
-     * costituisce un bersaglio valido: in quel caso, se la cella è anche
-     * raggiungibile, il click deve essere trattato come un movimento.
+     * per un'azione (un'unità da attaccare/curare, o un muro distruttibile da colpire).
+     * Una cella puramente vuota nel raggio d'attacco geometrico non costituisce un
+     * bersaglio valido: in quel caso, se la cella è anche raggiungibile, il click
+     * viene trattato come un movimento.
      */
     private boolean hasActionTarget(BattleMap map, Position pos) {
         Cell cell = map.getCell(pos);
@@ -105,28 +108,13 @@ public class BattleController {
     }
 
     /**
-     * Annulla la selezione corrente. Se l'unità si è già mossa in questo turno,
-     * il click viene interpretato come una rinuncia implicita ad agire ulteriormente
-     * (equivalente a premere "Wait"): il turno dell'unità viene concluso definitivamente,
-     * impedendo che venga riselezionata per muoversi di nuovo. Se invece l'unità non
-     * si è ancora mossa, la selezione viene semplicemente annullata senza conseguenze.
-     */
-    private void cancelOrWait() {
-        if (selectedUnit != null && selectedUnit.hasMovedThisTurn()) {
-            onWait();
-        } else {
-            deselect();
-        }
-    }
-
-    /**
      * Smista l'azione da eseguire su una cella che contiene un bersaglio valido
      * (verificato a monte da {@link #hasActionTarget}): un'unità da attaccare
      * o curare, oppure un muro distruttibile da colpire.
      */
-    private void handleActionTarget(BattleMap map, Position pos){
+    private void handleActionTarget(BattleMap map, Position pos) {
         Cell cell = map.getCell(pos);
-        if (cell.isOccupied()){
+        if (cell.isOccupied()) {
             Unit target = cell.getOccupant();
             if (target.getFaction() == selectedUnit.getFaction()) tryHeal(target);
             else tryAttack(map, pos);
@@ -137,10 +125,7 @@ public class BattleController {
 
     /**
      * Seleziona l'unità presente nella cella cliccata, se appartiene al giocatore,
-     * è viva e non ha già concluso il proprio turno. Subito dopo la selezione il
-     * bottone "Wait" non viene mostrato: l'unità deve prima muoversi (o decidere
-     * di restare ferma cliccando di nuovo sulla propria cella) prima di poter
-     * terminare volontariamente il turno.
+     * è viva e non ha già concluso il proprio turno.
      */
     private void trySelectUnit(BattleMap map, Position pos) {
         Cell cell = map.getCell(pos);
@@ -149,9 +134,7 @@ public class BattleController {
         Unit unit = cell.getOccupant();
         uiManager.showUnitInfo(unit, null, null);
 
-        if (unit.getFaction() != Faction.PLAYER || !unit.isAlive() || unit.hasFinishedTurn()) {
-            return;
-        }
+        if (unit.getFaction() != Faction.PLAYER || !unit.isAlive() || unit.hasFinishedTurn()) return;
 
         selectedUnit = unit;
         updateMovementData();
@@ -177,9 +160,7 @@ public class BattleController {
 
     /**
      * Sposta l'unità selezionata nella posizione indicata. Se il turno non
-     * è ancora concluso dopo il movimento, il pannello informativo viene
-     * aggiornato mostrando anche il bottone "Wait", che permette di terminare
-     * volontariamente il turno senza compiere un'ulteriore azione.
+     * è ancora concluso dopo il movimento, mostra il bottone "Wait".
      */
     private void tryMove(BattleMap map, Position pos) {
         try {
@@ -189,8 +170,6 @@ public class BattleController {
         }
         selectedUnit.markAsMoved();
         updateMovementData();
-        // L'unità si è già mossa in questo turno: il movimento è bloccato,
-        // anche se può ancora attaccare/curare/usare oggetti dalla nuova posizione.
         reachableCells = Set.of();
         if (selectedUnit.hasFinishedTurn()) {
             deselect();
@@ -201,7 +180,7 @@ public class BattleController {
 
     /**
      * Termina volontariamente il turno dell'unità selezionata senza compiere
-     * un'azione di attacco, cura o utilizzo oggetti.
+     * ulteriori azioni.
      */
     private void onWait() {
         if (selectedUnit == null) return;
@@ -213,8 +192,8 @@ public class BattleController {
 
     /**
      * Risolve l'attacco dell'unità selezionata contro il difensore indicato.
-     * Non chiama esplicitamente {@code markAsActed()}: {@link CombatService#resolve}
-     * lo fa già internamente sull'attaccante, una sola volta.
+     * {@link CombatService#resolve} chiama internamente {@code markAsActed()}
+     * sull'attaccante, quindi non è necessario farlo qui.
      */
     private void tryAttack(BattleMap map, Position pos) {
         CombatResult result = combatService.resolve(selectedUnit, map.getCell(pos).getOccupant(), map);
@@ -223,28 +202,77 @@ public class BattleController {
         checkEndConditions();
     }
 
+    /**
+     * Cura l'unità bersaglio con il bastone equipaggiato dall'unità selezionata.
+     * Se l'unità non ha un'arma equipaggiata, o se l'arma non è di tipo
+     * {@link WeaponType#STAFF}, l'azione fallisce con un messaggio nel log
+     * anziché in silenzio.
+     */
     private void tryHeal(Unit target) {
-        selectedUnit.getEquippedWeapon().ifPresent(w -> {
-            if (w.getWeaponType() == WeaponType.STAFF && target.isAlive()) {
-                target.heal(w.getAttackBonus());
-                w.use();
-                uiManager.log(selectedUnit.getName() + " heals " + target.getName() + ".");
-                selectedUnit.markAsActed();
-                deselect();
-            }
-        });
+        Weapon staff = getEquippedWeaponOrLog(WeaponType.STAFF, "heal");
+        if (staff == null) return;
+        if (!target.isAlive()) {
+            uiManager.log("Cannot heal a defeated unit.");
+            return;
+        }
+        target.heal(staff.getAttackBonus());
+        staff.use();
+        uiManager.log(selectedUnit.getName() + " heals " + target.getName() + ".");
+        selectedUnit.markAsActed();
+        deselect();
     }
 
+    /**
+     * Colpisce un muro distruttibile con l'arma equipaggiata dall'unità selezionata.
+     * Se l'unità non ha nessun'arma equipaggiata l'azione fallisce con un messaggio
+     * nel log anziché in silenzio.
+     */
     private void tryAttackWall(Cell wallCell) {
-        selectedUnit.getEquippedWeapon().ifPresent(w -> {
-            int damage = selectedUnit.getStats().getAttack() + w.getAttackBonus();
-            boolean destroyed = wallCell.damageWall(damage);
-            w.use();
-            uiManager.log(selectedUnit.getName() + " strikes the wall for " + damage + " damage.");
-            selectedUnit.markAsActed();
-            if (destroyed) updateMovementData();
+        Weapon weapon = getEquippedWeaponOrLog(null, "attack the wall");
+        if (weapon == null) return;
+        int damage = selectedUnit.getStats().getAttack() + weapon.getAttackBonus();
+        boolean destroyed = wallCell.damageWall(damage);
+        weapon.use();
+        uiManager.log(selectedUnit.getName() + " strikes the wall for " + damage + " damage.");
+        selectedUnit.markAsActed();
+        if (destroyed) updateMovementData();
+        deselect();
+    }
+
+    /**
+     * Restituisce l'arma equipaggiata dall'unità selezionata se presente e,
+     * quando {@code requiredType} non è {@code null}, se è del tipo richiesto.
+     * In caso contrario logga un messaggio descrittivo e restituisce {@code null},
+     * evitando il fallimento silenzioso che si aveva con {@code ifPresent}.
+     *
+     * @param requiredType il tipo d'arma richiesto, o {@code null} se qualsiasi arma è accettata.
+     * @param actionName   il nome dell'azione tentata, usato nel messaggio di log.
+     * @return l'arma equipaggiata valida, o {@code null} se il prerequisito non è soddisfatto.
+     */
+    private Weapon getEquippedWeaponOrLog(WeaponType requiredType, String actionName) {
+        Optional<Weapon> equipped = selectedUnit.getEquippedWeapon();
+        if (equipped.isEmpty()) {
+            uiManager.log(selectedUnit.getName() + " has no weapon equipped and cannot " + actionName + ".");
+            return null;
+        }
+        Weapon weapon = equipped.get();
+        if (requiredType != null && weapon.getWeaponType() != requiredType) {
+            uiManager.log(selectedUnit.getName() + " needs a " + requiredType + " to " + actionName + ".");
+            return null;
+        }
+        return weapon;
+    }
+
+    /**
+     * Annulla la selezione corrente. Se l'unità si è già mossa in questo turno,
+     * il click viene interpretato come Wait implicito.
+     */
+    private void cancelOrWait() {
+        if (selectedUnit != null && selectedUnit.hasMovedThisTurn()) {
+            onWait();
+        } else {
             deselect();
-        });
+        }
     }
 
     /**
@@ -252,9 +280,9 @@ public class BattleController {
      * svuota il pannello informativo laterale.
      */
     private void deselect() {
-        selectedUnit = null;
-        reachableCells = Set.of();
-        attackableCells = Set.of();
+        selectedUnit      = null;
+        reachableCells    = Set.of();
+        attackableCells   = Set.of();
         uiManager.clearUnitInfo();
     }
 
@@ -267,7 +295,8 @@ public class BattleController {
         return false;
     }
 
-    @FXML private void onEndTurn() {
+    @FXML
+    private void onEndTurn() {
         deselect();
         turnService.endPlayerTurn(state);
         enemyService.executeTurn(state);
@@ -276,7 +305,8 @@ public class BattleController {
         refreshView();
     }
 
-    @FXML private void onSave() {
+    @FXML
+    private void onSave() {
         TextInputDialog dialog = new TextInputDialog(state.getSaveName());
         dialog.setTitle("Save Game");
         dialog.setHeaderText(null);

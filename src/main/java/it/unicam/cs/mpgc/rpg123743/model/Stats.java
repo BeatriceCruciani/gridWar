@@ -1,15 +1,9 @@
 package it.unicam.cs.mpgc.rpg123743.model;
 
 /**
- * Rappresenta le statistiche di un'unità in GridWar.
- * Utilizzata sia come statistiche base della classe sia come statistiche correnti dell'unità.
- * maxHp: punti ferita massimi
- * currentHp: punti ferita attuali
- * attack: potere d'attacco fisico o magico
- * defence: riduzione dei danni contro attacchi fisici
- * resistance: riduzione dei danni contro attacchi magici
- * speed: influenza la probabilità di colpire e di schivare
- * movement: numero di celle percorribili per turno
+ * Contenitore delle statistiche di un'unità in GridWar.
+ * Espone i valori tramite getter e li modifica tramite
+ * {@link #applyDamage(int)}, {@link #heal(int)} e {@link #applyLevelUp}.
  */
 public class Stats {
 
@@ -34,8 +28,8 @@ public class Stats {
      * @throws IllegalArgumentException se maxHp o movement non sono positivi.
      */
     public Stats(int maxHp, int attack, int defence, int resistance, int speed, int movement) {
-        if (maxHp <= 0) throw new IllegalArgumentException("Max HP must be positive.");
-        if (movement <= 0) throw new IllegalArgumentException("Movement must be positive.");
+        if (maxHp <= 0)     throw new IllegalArgumentException("Max HP must be positive.");
+        if (movement <= 0)  throw new IllegalArgumentException("Movement must be positive.");
         this.maxHp = maxHp;
         this.currentHp = maxHp;
         this.attack = attack;
@@ -57,63 +51,63 @@ public class Stats {
     }
 
     /**
-     * Ripristina i punti ferita (HP) all'unità, fino al massimo consentito.
-     * Sincronizzato terminologicamente con la logica di cura globale del gioco.
+     * Ripristina i punti ferita all'unità, fino al massimo consentito.
      *
-     * @param amount la quantità di HP da ripristinare (non negativa).
-     * @throws IllegalArgumentException se amount è negativo.
+     * @param amount la quantità di HP da ripristinare (deve essere positiva).
+     * @throws IllegalArgumentException se amount non è positivo.
      */
     public void heal(int amount) {
-        if (amount < 0) throw new IllegalArgumentException("Heal amount must be non-negative.");
+        if (amount <= 0) throw new IllegalArgumentException("Heal amount must be positive.");
         this.currentHp = Math.min(maxHp, this.currentHp + amount);
     }
 
     /**
      * Restituisce {@code true} se l'unità non ha più HP rimanenti.
-     * * @return {@code true} se l'unità è sconfitta, {@code false} altrimenti.
+     *
+     * @return {@code true} se l'unità è sconfitta, {@code false} altrimenti.
      */
     public boolean isDead() {
         return currentHp <= 0;
     }
 
     /** @return i punti ferita massimi. */
-    public int getMaxHp() { return maxHp; }
+    public int getMaxHp()       { return maxHp; }
     /** @return i punti ferita attuali. */
-    public int getCurrentHp() { return currentHp; }
+    public int getCurrentHp()   { return currentHp; }
     /** @return il potere d'attacco. */
-    public int getAttack() { return attack; }
+    public int getAttack()      { return attack; }
     /** @return la difesa fisica. */
-    public int getDefence() { return defence; }
+    public int getDefence()     { return defence; }
     /** @return la resistenza magica. */
-    public int getResistance() { return resistance; }
+    public int getResistance()  { return resistance; }
     /** @return la velocità. */
-    public int getSpeed() { return speed; }
+    public int getSpeed()       { return speed; }
     /** @return il numero di celle percorribili per turno. */
-    public int getMovement() { return movement; }
+    public int getMovement()    { return movement; }
 
     /**
-     * Applica i bonus statistici al level up.
-     * Aumenta tutte le statistiche dei valori specificati.
-     * Garantisce che i bonus passati siano coerenti (non negativi).
+     * Applica i bonus statistici al level up, aumentando tutte le statistiche
+     * dei valori specificati. Gli HP correnti aumentano insieme al massimo,
+     * come da convenzione Fire Emblem.
      *
-     * @param hp         bonus HP massimi.
-     * @param atk        bonus attacco.
-     * @param def        bonus difesa.
-     * @param res        bonus resistenza.
-     * @param spd        bonus velocità.
-     * @param mov        bonus movimento.
+     * @param hp  bonus HP massimi.
+     * @param atk bonus attacco.
+     * @param def bonus difesa.
+     * @param res bonus resistenza.
+     * @param spd bonus velocità.
+     * @param mov bonus movimento.
      * @throws IllegalArgumentException se uno qualsiasi dei bonus è negativo.
      */
     public void applyLevelUp(int hp, int atk, int def, int res, int spd, int mov) {
         if (hp < 0 || atk < 0 || def < 0 || res < 0 || spd < 0 || mov < 0) {
             throw new IllegalArgumentException("Level up bonuses cannot be negative.");
         }
-        this.maxHp     += hp;
-        this.currentHp += hp;
-        this.attack    += atk;
-        this.defence   += def;
+        this.maxHp      += hp;
+        this.currentHp  += hp;
+        this.attack     += atk;
+        this.defence    += def;
         this.resistance += res;
-        this.speed     += spd;
-        this.movement  += mov;
+        this.speed      += spd;
+        this.movement   += mov;
     }
 }
