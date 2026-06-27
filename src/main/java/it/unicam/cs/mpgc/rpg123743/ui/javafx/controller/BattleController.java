@@ -145,8 +145,14 @@ public class BattleController {
     private void trySelectUnit(BattleMap map, Position pos) {
         Cell cell = map.getCell(pos);
         if (!cell.isOccupied()) return;
+
         Unit unit = cell.getOccupant();
-        if (unit.getFaction() != Faction.PLAYER || !unit.isAlive() || unit.hasFinishedTurn()) return;
+        uiManager.showUnitInfo(unit, null, null);
+
+        if (unit.getFaction() != Faction.PLAYER || !unit.isAlive() || unit.hasFinishedTurn()) {
+            return;
+        }
+
         selectedUnit = unit;
         updateMovementData();
         uiManager.showUnitInfo(unit, this::onUseItem, null);

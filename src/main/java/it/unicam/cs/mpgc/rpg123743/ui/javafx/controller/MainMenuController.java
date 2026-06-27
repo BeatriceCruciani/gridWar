@@ -20,9 +20,7 @@ public class MainMenuController {
     /**
      * Costruttore senza argomenti richiesto da FXMLLoader.
      */
-    public MainMenuController() {
-        // Lasciato vuoto intenzionalmente per JavaFX
-    }
+    public MainMenuController() {}
 
     /**
      * Inizializza il controller con il gestore delle scene.
